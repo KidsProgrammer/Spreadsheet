@@ -19,6 +19,8 @@
       --sheets-green: #0f9d58;
       --active-pill: #7ec8e3;
       --active-pill-text: #003544;
+      --header-active-bg: #004d61;
+      --header-active-text: #a6eeff;
       --app-height: 100%;
     }
 
@@ -38,7 +40,6 @@
       color: var(--text-main);
     }
 
-    /* Responsive App Container that solves the mobile 100vh cutoff bug */
     .app-container {
       width: 100%;
       height: 100%;
@@ -72,7 +73,7 @@
 
     /* ---------------- HOME SCREEN ---------------- */
     .home-header {
-      padding: 12px 16px 8px;
+      padding: 12px 14px 8px;
       display: flex;
       justify-content: center;
       width: 100%;
@@ -108,7 +109,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 6px 20px 10px;
+      padding: 6px 14px 10px;
       flex-shrink: 0;
     }
 
@@ -164,7 +165,7 @@
     .home-content {
       flex: 1;
       overflow-y: auto;
-      padding: 10px 20px calc(85px + env(safe-area-inset-bottom, 0px));
+      padding: 8px 12px calc(90px + env(safe-area-inset-bottom, 0px));
       max-width: 1140px;
       width: 100%;
       margin: 0 auto;
@@ -202,11 +203,18 @@
       line-height: 1.4;
     }
 
-    /* File Grid */
+    /* File Grid: Strictly 2 columns on Mobile, auto-fill on Desktop */
     .file-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    @media (min-width: 600px) {
+      .file-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+      }
     }
 
     .file-card {
@@ -218,7 +226,7 @@
       position: relative;
       cursor: pointer;
       border: 1px solid #1e2631;
-      transition: border-color 0.15s, transform 0.15s;
+      transition: transform 0.15s;
     }
 
     .file-card:hover {
@@ -227,10 +235,10 @@
     }
 
     .file-card-header {
-      padding: 10px 10px 4px 10px;
+      padding: 10px 8px 4px 10px;
       display: flex;
       align-items: flex-start;
-      gap: 8px;
+      gap: 6px;
     }
 
     .sheets-icon-sm {
@@ -247,7 +255,7 @@
     }
 
     .file-title {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 500;
       color: var(--text-main);
       overflow: hidden;
@@ -262,7 +270,7 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      padding: 4px 6px;
+      padding: 2px 4px;
       border-radius: 4px;
       cursor: pointer;
     }
@@ -273,9 +281,9 @@
     }
 
     .file-preview {
-      height: 110px;
+      height: 96px;
       background: #14181f;
-      margin: 8px;
+      margin: 6px 8px 8px;
       border-radius: 8px;
       display: flex;
       align-items: center;
@@ -284,8 +292,8 @@
     }
 
     .preview-center-icon {
-      width: 44px;
-      height: 44px;
+      width: 42px;
+      height: 42px;
       background: var(--sheets-green);
       border-radius: 8px;
       display: flex;
@@ -297,8 +305,8 @@
 
     .preview-badge {
       position: absolute;
-      bottom: 8px;
-      right: 8px;
+      bottom: 6px;
+      right: 6px;
       background: #2b333d;
       border-radius: 50%;
       width: 18px;
@@ -310,11 +318,11 @@
       color: var(--text-muted);
     }
 
-    /* Fixed Floating Action Button (Always stays properly positioned) */
+    /* Floating Action Button '+' */
     .fab {
       position: absolute;
       bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-      right: 24px;
+      right: 20px;
       width: 58px;
       height: 58px;
       border-radius: 18px;
@@ -328,11 +336,7 @@
       box-shadow: 0 4px 18px rgba(0,0,0,0.6);
       cursor: pointer;
       z-index: 60;
-      transition: transform 0.15s ease, background 0.2s;
-    }
-
-    .fab:hover {
-      background: #00607a;
+      transition: transform 0.15s ease;
     }
 
     .fab:active {
@@ -344,17 +348,17 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 16px;
+      padding: 8px 12px;
       background: var(--bg-dark);
       border-bottom: 1px solid #1c222b;
-      gap: 12px;
+      gap: 8px;
       flex-shrink: 0;
     }
 
     .editor-left {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex: 1;
       min-width: 0;
     }
@@ -370,7 +374,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: background 0.15s;
     }
 
     .editor-btn:hover {
@@ -383,7 +386,7 @@
       cursor: pointer;
       overflow: hidden;
       white-space: nowrap;
-      padding: 2px 8px;
+      padding: 2px 6px;
       border-radius: 6px;
     }
 
@@ -407,7 +410,7 @@
     .editor-right-actions {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 2px;
     }
 
     .share-pill {
@@ -424,11 +427,11 @@
       margin: 0 4px;
     }
 
-    /* Formula bar */
+    /* Formula input bar */
     .formula-bar-container {
       display: flex;
       align-items: center;
-      padding: 6px 16px;
+      padding: 6px 14px;
       background: #14181f;
       border-bottom: 1px solid var(--border-dark);
       gap: 12px;
@@ -439,7 +442,7 @@
       font-size: 13px;
       font-weight: bold;
       color: var(--accent-teal);
-      min-width: 32px;
+      min-width: 28px;
     }
 
     .fx-label {
@@ -516,6 +519,13 @@
       background: #101317;
     }
 
+    /* Highlighted Header when cell is selected (Screenshot 3 style) */
+    th.active-header {
+      background: var(--header-active-bg) !important;
+      color: var(--header-active-text) !important;
+      font-weight: 600;
+    }
+
     td.cell {
       background: #000000;
       cursor: cell;
@@ -527,7 +537,7 @@
       background: #0a1b2d;
     }
 
-    /* Bottom Sheet Bar (Protected from cutoff) */
+    /* Bottom Sheet Bar */
     .editor-bottom-bar {
       min-height: 48px;
       padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -535,10 +545,16 @@
       border-top: 1px solid #1c222b;
       display: flex;
       align-items: center;
-      padding-left: 16px;
-      padding-right: 16px;
-      gap: 12px;
+      justify-content: space-between;
+      padding-left: 14px;
+      padding-right: 14px;
       flex-shrink: 0;
+    }
+
+    .bottom-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .sheet-pill {
@@ -555,8 +571,8 @@
     }
 
     .add-sheet-btn {
-      width: 32px;
-      height: 32px;
+      width: 34px;
+      height: 34px;
       background: #1c242c;
       border-radius: 50%;
       border: none;
@@ -567,15 +583,21 @@
       cursor: pointer;
     }
 
-    /* Modal Context Menu */
+    .add-sheet-btn:active {
+      background: #2a3542;
+    }
+
+    /* FIXED POPUP BOTTOM ACTION SHEET (No cutoff) */
     .action-sheet-overlay {
       position: fixed;
       top: 0;
       left: 0;
+      right: 0;
+      bottom: 0;
       width: 100vw;
       height: 100vh;
-      background: rgba(0,0,0,0.65);
-      z-index: 100;
+      background: rgba(0,0,0,0.7);
+      z-index: 9999;
       display: none;
       align-items: flex-end;
       justify-content: center;
@@ -585,13 +607,16 @@
       background: var(--surface-dark);
       width: 100%;
       max-width: 500px;
-      border-radius: 18px 18px 0 0;
-      padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px));
+      border-radius: 20px 20px 0 0;
+      /* Generous bottom padding ensures delete button is never covered */
+      padding: 20px 16px calc(38px + env(safe-area-inset-bottom, 24px));
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 4px;
       transform: translateY(100%);
-      transition: transform 0.2s ease;
+      transition: transform 0.22s cubic-bezier(0.1, 0.9, 0.2, 1);
+      box-shadow: 0 -8px 24px rgba(0,0,0,0.8);
+      border-top: 1px solid #28303d;
     }
 
     .action-sheet.show {
@@ -599,7 +624,7 @@
     }
 
     .action-sheet-title {
-      font-size: 14px;
+      font-size: 14.5px;
       font-weight: 600;
       color: var(--text-muted);
       margin-bottom: 8px;
@@ -613,12 +638,12 @@
       display: flex;
       align-items: center;
       gap: 16px;
-      padding: 12px 14px;
+      padding: 13px 14px;
       background: transparent;
       border: none;
       color: var(--text-main);
       font-size: 15px;
-      border-radius: 8px;
+      border-radius: 10px;
       cursor: pointer;
       text-align: left;
     }
@@ -631,7 +656,7 @@
       color: #ff6b6b;
     }
 
-    /* Rename Dialog */
+    /* Universal Rename Dialog Modal */
     .dialog-overlay {
       position: fixed;
       top: 0;
@@ -642,7 +667,7 @@
       display: none;
       align-items: center;
       justify-content: center;
-      z-index: 120;
+      z-index: 10000;
       padding: 20px;
     }
 
@@ -651,7 +676,7 @@
       border-radius: 16px;
       padding: 24px;
       width: 100%;
-      max-width: 360px;
+      max-width: 340px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.8);
       border: 1px solid #2e3642;
     }
@@ -696,13 +721,38 @@
       color: var(--text-muted);
     }
 
-    .dialog-btn.cancel:hover {
-      background: #232a35;
-    }
-
     .dialog-btn.confirm {
       background: var(--accent-teal);
       color: #032b40;
+      font-weight: 600;
+    }
+
+    /* Sheet Switcher Menu */
+    .sheet-list-container {
+      max-height: 250px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-top: 8px;
+    }
+
+    .sheet-option-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-radius: 8px;
+      background: #171c23;
+      color: var(--text-main);
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .sheet-option-item.active {
+      background: #004d61;
+      color: #a6eeff;
       font-weight: 600;
     }
   </style>
@@ -761,6 +811,7 @@
           <button class="editor-btn" onclick="triggerRedo()" title="Redo"><i class="fa-solid fa-arrow-rotate-right"></i></button>
           <button class="editor-btn" title="Comments"><i class="fa-regular fa-comment-dots"></i></button>
           <div class="share-pill" title="Share"><i class="fa-solid fa-user-plus"></i></div>
+          <!-- AI sparkle logo retained -->
           <button class="editor-btn" style="color: #92e0ff;" title="Gemini AI"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
           <button class="editor-btn" onclick="openRenameModal(activeFileId)" title="More options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
         </div>
@@ -780,18 +831,23 @@
         </table>
       </div>
 
-      <!-- Bottom Sheet Bar -->
+      <!-- Bottom Sheet Bar with Sheet Switching & '+' Button -->
       <div class="editor-bottom-bar">
-        <button class="editor-btn" style="color:var(--text-muted);"><i class="fa-solid fa-bars"></i></button>
-        <div class="sheet-pill">
-          <span>Sheet1</span>
-          <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
+        <div class="bottom-bar-left">
+          <button class="editor-btn" style="color:var(--text-muted);"><i class="fa-solid fa-bars"></i></button>
+          <div class="sheet-pill" onclick="openSheetManagerModal()">
+            <span id="active-sheet-name">Sheet1</span>
+            <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
+          </div>
         </div>
-        <button class="add-sheet-btn" title="Add sheet"><i class="fa-solid fa-plus"></i></button>
+        <!-- Functioning '+' button to add Sheet2, Sheet3, etc. -->
+        <button class="add-sheet-btn" onclick="addNewSheet()" title="Add sheet">
+          <i class="fa-solid fa-plus"></i>
+        </button>
       </div>
     </div>
 
-    <!-- ACTION MENU OVERLAY (Rename / Delete) -->
+    <!-- ACTION MENU OVERLAY (Rename / Delete) - NO LONGER CUT OFF -->
     <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()">
       <div class="action-sheet" id="action-sheet" onclick="event.stopPropagation()">
         <div class="action-sheet-title" id="action-sheet-filename">File Title</div>
@@ -802,6 +858,20 @@
         <button class="action-item danger" onclick="onMenuDeleteClick()">
           <i class="fa-regular fa-trash-can"></i>
           <span>Delete</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SHEET MANAGER MODAL (Switch between Sheet1, Sheet2, etc.) -->
+    <div class="action-sheet-overlay" id="sheet-selector-overlay" onclick="closeSheetManagerModal()">
+      <div class="action-sheet" id="sheet-selector-sheet" onclick="event.stopPropagation()">
+        <div class="action-sheet-title">Sheets in this document</div>
+        <div class="sheet-list-container" id="sheets-list">
+          <!-- Dynamically populated sheets -->
+        </div>
+        <button class="action-item" onclick="addNewSheet(); closeSheetManagerModal();" style="margin-top: 8px;">
+          <i class="fa-solid fa-plus" style="color: var(--accent-teal);"></i>
+          <span>Add new sheet</span>
         </button>
       </div>
     </div>
@@ -821,7 +891,7 @@
   </div>
 
   <script>
-    // --- Application State & Persistence ---
+    // --- Application State & Multi-Sheet Architecture ---
     const STORAGE_KEY = 'google_sheets_app_files';
     const COLS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
     const ROWS_COUNT = 45;
@@ -854,7 +924,16 @@
     function loadFilesFromStorage() {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) {
-        try { files = JSON.parse(raw); } catch (e) { files = []; }
+        try { 
+          files = JSON.parse(raw);
+          // Migration: Ensure all files have sheets object
+          files.forEach(f => {
+            if (!f.sheets) {
+              f.sheets = { 'Sheet1': f.data || {} };
+              f.activeSheet = 'Sheet1';
+            }
+          });
+        } catch (e) { files = []; }
       } else {
         files = [];
       }
@@ -893,6 +972,7 @@
         return;
       }
 
+      // Always 2 cards per row on mobile!
       let html = '<div class="file-grid">';
       filtered.forEach(file => {
         html += `
@@ -922,7 +1002,10 @@
         id: 'sheet_' + Date.now(),
         title: 'Untitled spreadsheet',
         updatedAt: new Date().toISOString(),
-        data: {}
+        activeSheet: 'Sheet1',
+        sheets: {
+          'Sheet1': {}
+        }
       };
       files.unshift(newFile);
       saveFilesToStorage();
@@ -934,7 +1017,13 @@
       const file = files.find(f => f.id === id);
       if (!file) return;
 
+      if (!file.sheets) file.sheets = { 'Sheet1': {} };
+      if (!file.activeSheet || !file.sheets[file.activeSheet]) {
+        file.activeSheet = Object.keys(file.sheets)[0] || 'Sheet1';
+      }
+
       document.getElementById('editor-title').innerText = file.title;
+      document.getElementById('active-sheet-name').innerText = file.activeSheet;
       document.getElementById('home-screen').classList.remove('active');
       document.getElementById('editor-screen').classList.add('active');
 
@@ -950,7 +1039,78 @@
       renderHomeFiles();
     }
 
-    // --- Action Menu ---
+    // --- Multi-Sheet Management (Sheet1, Sheet2, etc.) ---
+    function addNewSheet() {
+      const file = files.find(f => f.id === activeFileId);
+      if (!file) return;
+
+      let counter = Object.keys(file.sheets).length + 1;
+      let newSheetName = `Sheet${counter}`;
+      while (file.sheets[newSheetName]) {
+        counter++;
+        newSheetName = `Sheet${counter}`;
+      }
+
+      file.sheets[newSheetName] = {};
+      file.activeSheet = newSheetName;
+      saveFilesToStorage();
+
+      document.getElementById('active-sheet-name').innerText = newSheetName;
+      undoStack = [];
+      redoStack = [];
+      refreshGridValues();
+      selectCell('A1');
+    }
+
+    function switchSheet(sheetName) {
+      const file = files.find(f => f.id === activeFileId);
+      if (!file || !file.sheets[sheetName]) return;
+
+      file.activeSheet = sheetName;
+      saveFilesToStorage();
+
+      document.getElementById('active-sheet-name').innerText = sheetName;
+      undoStack = [];
+      redoStack = [];
+      refreshGridValues();
+      selectCell('A1');
+      closeSheetManagerModal();
+    }
+
+    function openSheetManagerModal() {
+      const file = files.find(f => f.id === activeFileId);
+      if (!file) return;
+
+      const listContainer = document.getElementById('sheets-list');
+      listContainer.innerHTML = '';
+
+      Object.keys(file.sheets).forEach(name => {
+        const isActive = name === file.activeSheet;
+        const btn = document.createElement('button');
+        btn.className = `sheet-option-item ${isActive ? 'active' : ''}`;
+        btn.innerHTML = `
+          <span>${name}</span>
+          ${isActive ? '<i class="fa-solid fa-check"></i>' : ''}
+        `;
+        btn.onclick = () => switchSheet(name);
+        listContainer.appendChild(btn);
+      });
+
+      const overlay = document.getElementById('sheet-selector-overlay');
+      const sheet = document.getElementById('sheet-selector-sheet');
+      overlay.style.display = 'flex';
+      setTimeout(() => sheet.classList.add('show'), 10);
+    }
+
+    function closeSheetManagerModal() {
+      const sheet = document.getElementById('sheet-selector-sheet');
+      sheet.classList.remove('show');
+      setTimeout(() => {
+        document.getElementById('sheet-selector-overlay').style.display = 'none';
+      }, 200);
+    }
+
+    // --- Action Menu Logic ---
     function openActionMenu(e, fileId) {
       e.stopPropagation();
       menuTargetFileId = fileId;
@@ -1037,7 +1197,7 @@
       closeRenameModal();
     }
 
-    // --- Grid Table Construction ---
+    // --- Grid Construction & Highlighted Headers ---
     function buildGrid() {
       const table = document.getElementById('sheets-table');
       table.innerHTML = '';
@@ -1050,6 +1210,7 @@
       COLS.forEach(col => {
         const th = document.createElement('th');
         th.className = 'col-header';
+        th.id = `col-header-${col}`;
         th.innerText = col;
         theadRow.appendChild(th);
       });
@@ -1059,6 +1220,7 @@
         const tr = document.createElement('tr');
         const rowHeader = document.createElement('th');
         rowHeader.className = 'row-header';
+        rowHeader.id = `row-header-${r}`;
         rowHeader.innerText = r;
         tr.appendChild(rowHeader);
 
@@ -1082,19 +1244,36 @@
     }
 
     function selectCell(cellId) {
+      // Remove previous cell and header highlights
       if (selectedCell) {
         const prev = document.getElementById(`cell-${selectedCell}`);
         if (prev) prev.classList.remove('selected');
+        
+        const prevCol = selectedCell.charAt(0);
+        const prevRow = selectedCell.slice(1);
+        const prevColH = document.getElementById(`col-header-${prevCol}`);
+        const prevRowH = document.getElementById(`row-header-${prevRow}`);
+        if (prevColH) prevColH.classList.remove('active-header');
+        if (prevRowH) prevRowH.classList.remove('active-header');
       }
 
       selectedCell = cellId;
       const el = document.getElementById(`cell-${cellId}`);
       if (el) el.classList.add('selected');
 
+      // Add Teal Highlight to Column & Row headers (Screenshot 3 style)
+      const col = cellId.charAt(0);
+      const row = cellId.slice(1);
+      const colH = document.getElementById(`col-header-${col}`);
+      const rowH = document.getElementById(`row-header-${row}`);
+      if (colH) colH.classList.add('active-header');
+      if (rowH) rowH.classList.add('active-header');
+
       document.getElementById('selected-cell-badge').innerText = cellId;
 
       const file = files.find(f => f.id === activeFileId);
-      const cellData = file && file.data && file.data[cellId];
+      const sheetData = file && file.sheets && file.sheets[file.activeSheet];
+      const cellData = sheetData && sheetData[cellId];
       const formulaInput = document.getElementById('formula-input');
       formulaInput.value = cellData ? cellData.raw : '';
     }
@@ -1131,20 +1310,23 @@
       const file = files.find(f => f.id === activeFileId);
       if (!file) return;
 
-      if (!file.data) file.data = {};
-      const prevData = file.data[selectedCell] ? file.data[selectedCell].raw : '';
+      if (!file.sheets) file.sheets = {};
+      if (!file.sheets[file.activeSheet]) file.sheets[file.activeSheet] = {};
+
+      const currentSheetData = file.sheets[file.activeSheet];
+      const prevData = currentSheetData[selectedCell] ? currentSheetData[selectedCell].raw : '';
 
       if (pushUndo && prevData !== value) {
-        undoStack.push({ cellId: selectedCell, oldVal: prevData, newVal: value });
+        undoStack.push({ cellId: selectedCell, oldVal: prevData, newVal: value, sheet: file.activeSheet });
         redoStack = [];
       }
 
       if (value === '') {
-        delete file.data[selectedCell];
+        delete currentSheetData[selectedCell];
       } else {
-        file.data[selectedCell] = {
+        currentSheetData[selectedCell] = {
           raw: value,
-          val: evaluateFormula(value, file.data)
+          val: evaluateFormula(value, currentSheetData)
         };
       }
 
@@ -1235,7 +1417,7 @@
 
     function refreshGridValues() {
       const file = files.find(f => f.id === activeFileId);
-      const data = file ? (file.data || {}) : {};
+      const data = (file && file.sheets && file.sheets[file.activeSheet]) || {};
 
       COLS.forEach(col => {
         for (let r = 1; r <= ROWS_COUNT; r++) {
@@ -1260,6 +1442,11 @@
       const action = undoStack.pop();
       redoStack.push(action);
 
+      const file = files.find(f => f.id === activeFileId);
+      if (file && file.activeSheet !== action.sheet) {
+        switchSheet(action.sheet);
+      }
+
       selectCell(action.cellId);
       document.getElementById('formula-input').value = action.oldVal;
       saveCurrentCellValue(action.oldVal, false);
@@ -1269,6 +1456,11 @@
       if (redoStack.length === 0) return;
       const action = redoStack.pop();
       undoStack.push(action);
+
+      const file = files.find(f => f.id === activeFileId);
+      if (file && file.activeSheet !== action.sheet) {
+        switchSheet(action.sheet);
+      }
 
       selectCell(action.cellId);
       document.getElementById('formula-input').value = action.newVal;

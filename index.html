@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Google Sheets</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --bg-dark: #101317;
+      --surface-dark: #1a1e24;
+      --surface-variant: #252b34;
+      --border-dark: #2c333e;
+      --text-main: #e2e5e9;
+      --text-muted: #8e959e;
+      --accent-teal: #7fcfff;
+      --fab-bg: #004d61;
+      --fab-icon: #a6eeff;
+      --sheets-green: #0f9d58;
+      --active-pill: #7ec8e3;
+      --active-pill-text: #003544;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      min-height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      display: flex;
+    }
+
+    /* Responsive App Container (Mobile & Desktop) */
+    .app-container {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Screen Management */
+    .screen {
+      display: none;
+      flex-direction: column;
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      background: var(--bg-dark);
+    }
+
+    .screen.active {
+      display: flex;
+      z-index: 10;
+    }
+
+    /* ---------------- HOME SCREEN ---------------- */
+    .home-header {
+      padding: 12px 16px;
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
+
+    .search-box {
+      background: var(--surface-variant);
+      border-radius: 28px;
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 14px;
+      color: var(--text-muted);
+      width: 100%;
+      max-width: 720px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 15px;
+      flex: 1;
+    }
+
+    .home-filter-wrapper {
+      max-width: 1100px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 20px;
+    }
+
+    .sort-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+    }
+
+    .sort-icon-bubble {
+      width: 26px;
+      height: 26px;
+      background: #1f2730;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+    }
+
+    .view-toggles {
+      display: flex;
+      background: #1b222a;
+      border-radius: 20px;
+      padding: 2px;
+    }
+
+    .view-btn {
+      width: 34px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      color: var(--text-muted);
+      border: none;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .view-btn.active {
+      background: #394857;
+      color: #fff;
+    }
+
+    /* Content Area */
+    .home-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px 80px;
+      max-width: 1140px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Empty State */
+    .empty-state {
+      height: 70%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .empty-state svg {
+      width: 170px;
+      margin-bottom: 24px;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .empty-state p {
+      font-size: 13px;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.4;
+    }
+
+    /* File Grid (Auto adjusts for Mobile & Desktop) */
+    .file-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 16px;
+    }
+
+    .file-card {
+      background: var(--surface-dark);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      cursor: pointer;
+      border: 1px solid #1e2631;
+      transition: border-color 0.15s, transform 0.15s;
+    }
+
+    .file-card:hover {
+      border-color: #384656;
+      transform: translateY(-2px);
+    }
+
+    .file-card-header {
+      padding: 10px 10px 4px 10px;
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .sheets-icon-sm {
+      background: var(--sheets-green);
+      color: white;
+      border-radius: 4px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      flex-shrink: 0;
+    }
+
+    .file-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-main);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      flex: 1;
+      line-height: 1.3;
+    }
+
+    .file-menu-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 4px 6px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .file-menu-btn:hover {
+      background: #27303d;
+      color: #fff;
+    }
+
+    .file-preview {
+      height: 110px;
+      background: #14181f;
+      margin: 8px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .preview-center-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--sheets-green);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 20px;
+    }
+
+    .preview-badge {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: #2b333d;
+      border-radius: 50%;
+      width: 18px;
+      height: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 9px;
+      color: var(--text-muted);
+    }
+
+    /* Floating Action Button */
+    .fab {
+      position: absolute;
+      bottom: 24px;
+      right: 24px;
+      width: 58px;
+      height: 58px;
+      border-radius: 18px;
+      background: var(--fab-bg);
+      color: var(--fab-icon);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      border: none;
+      box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+      cursor: pointer;
+      z-index: 50;
+      transition: transform 0.15s ease, background 0.2s;
+    }
+
+    .fab:hover {
+      background: #00607a;
+    }
+
+    .fab:active {
+      transform: scale(0.95);
+    }
+
+    /* ---------------- SPREADSHEET EDITOR ---------------- */
+    .editor-topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 16px;
+      background: var(--bg-dark);
+      border-bottom: 1px solid #1c222b;
+      gap: 12px;
+    }
+
+    .editor-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .editor-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 16px;
+      padding: 8px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+
+    .editor-btn:hover {
+      background: #222933;
+    }
+
+    .editor-titles {
+      display: flex;
+      flex-direction: column;
+      cursor: pointer;
+      overflow: hidden;
+      white-space: nowrap;
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .editor-titles:hover {
+      background: #1b232c;
+    }
+
+    .editor-title-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-main);
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .editor-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .editor-right-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .share-pill {
+      background: #7fc8f8;
+      color: #04273c;
+      border-radius: 20px;
+      padding: 6px 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      margin: 0 4px;
+    }
+
+    /* Formula input bar */
+    .formula-bar-container {
+      display: flex;
+      align-items: center;
+      padding: 6px 16px;
+      background: #14181f;
+      border-bottom: 1px solid var(--border-dark);
+      gap: 12px;
+    }
+
+    .active-cell-badge {
+      font-size: 13px;
+      font-weight: bold;
+      color: var(--accent-teal);
+      min-width: 32px;
+    }
+
+    .fx-label {
+      font-style: italic;
+      color: var(--text-muted);
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    .formula-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text-main);
+      font-size: 13px;
+      width: 100%;
+    }
+
+    /* Grid Table Area */
+    .spreadsheet-viewport {
+      flex: 1;
+      overflow: auto;
+      background: #000;
+      position: relative;
+    }
+
+    table.sheets-table {
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: #000;
+      user-select: none;
+    }
+
+    th, td {
+      border: 1px solid var(--border-dark);
+      font-size: 13px;
+      color: var(--text-main);
+      height: 26px;
+      min-height: 26px;
+      padding: 0 6px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    th {
+      background: #101317;
+      color: var(--text-muted);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* Fixed Row and Col Header */
+    th.col-header {
+      width: 86px;
+      min-width: 86px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+
+    th.row-header {
+      width: 44px;
+      min-width: 44px;
+      position: sticky;
+      left: 0;
+      z-index: 2;
+    }
+
+    th.corner-header {
+      position: sticky;
+      top: 0;
+      left: 0;
+      z-index: 3;
+      background: #101317;
+    }
+
+    td.cell {
+      background: #000000;
+      cursor: cell;
+    }
+
+    td.cell.selected {
+      outline: 2px solid #3c82f6;
+      outline-offset: -2px;
+      background: #0a1b2d;
+    }
+
+    /* Bottom Sheet Bar */
+    .editor-bottom-bar {
+      height: 48px;
+      background: var(--bg-dark);
+      border-top: 1px solid #1c222b;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      gap: 12px;
+    }
+
+    .sheet-pill {
+      background: var(--active-pill);
+      color: var(--active-pill-text);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+    }
+
+    .add-sheet-btn {
+      width: 32px;
+      height: 32px;
+      background: #1c242c;
+      border-radius: 50%;
+      border: none;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* Bottom Action Sheet (Mobile Context Menu) */
+    .action-sheet-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.65);
+      z-index: 100;
+      display: none;
+      align-items: flex-end;
+      justify-content: center;
+    }
+
+    .action-sheet {
+      background: var(--surface-dark);
+      width: 100%;
+      max-width: 500px;
+      border-radius: 18px 18px 0 0;
+      padding: 20px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      transform: translateY(100%);
+      transition: transform 0.2s ease;
+    }
+
+    .action-sheet.show {
+      transform: translateY(0);
+    }
+
+    .action-sheet-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      padding-left: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .action-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 14px;
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 15px;
+      border-radius: 8px;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .action-item:hover, .action-item:active {
+      background: #252e3a;
+    }
+
+    .action-item.danger {
+      color: #ff6b6b;
+    }
+
+    /* Universal Rename Dialog Modal */
+    .dialog-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 120;
+      padding: 20px;
+    }
+
+    .dialog-box {
+      background: var(--surface-dark);
+      border-radius: 16px;
+      padding: 24px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+      border: 1px solid #2e3642;
+    }
+
+    .dialog-box h4 {
+      font-size: 17px;
+      margin-bottom: 14px;
+    }
+
+    .dialog-box input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-dark);
+      background: #11151a;
+      color: #fff;
+      font-size: 14px;
+      outline: none;
+      margin-bottom: 18px;
+    }
+
+    .dialog-box input:focus {
+      border-color: var(--accent-teal);
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .dialog-btn {
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .dialog-btn.cancel {
+      background: transparent;
+      color: var(--text-muted);
+    }
+
+    .dialog-btn.cancel:hover {
+      background: #232a35;
+    }
+
+    .dialog-btn.confirm {
+      background: var(--accent-teal);
+      color: #032b40;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-container">
+
+    <!-- 1. HOME SCREEN (File List & Empty State) -->
+    <div id="home-screen" class="screen active">
+      <div class="home-header">
+        <div class="search-box">
+          <i class="fa-solid fa-bars"></i>
+          <input type="text" placeholder="Search spreadsheets" id="search-input" oninput="renderHomeFiles()">
+          <i class="fa-regular fa-folder"></i>
+        </div>
+      </div>
+
+      <div class="home-filter-wrapper">
+        <button class="sort-pill">
+          <span>Date opened by me</span>
+          <div class="sort-icon-bubble">
+            <i class="fa-solid fa-arrow-down"></i>
+          </div>
+        </button>
+        <div class="view-toggles">
+          <button class="view-btn"><i class="fa-solid fa-list-ul"></i></button>
+          <button class="view-btn active"><i class="fa-solid fa-table-cells-large"></i></button>
+        </div>
+      </div>
+
+      <div class="home-content" id="home-content">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Floating Action Button '+' -->
+      <button class="fab" onclick="createNewSpreadsheet()" title="Create new spreadsheet">
+        <i class="fa-solid fa-plus"></i>
+      </button>
+    </div>
+
+    <!-- 2. SPREADSHEET EDITOR SCREEN -->
+    <div id="editor-screen" class="screen">
+      <div class="editor-topbar">
+        <div class="editor-left">
+          <button class="editor-btn" onclick="exitToHome()" title="Back to home">
+            <i class="fa-solid fa-arrow-left"></i>
+          </button>
+          <div class="editor-titles" onclick="openRenameModal(activeFileId)" title="Click to rename">
+            <span class="editor-title-text" id="editor-title">Untitled spreadsheet</span>
+            <span class="editor-subtitle" id="save-status">Saved to storage</span>
+          </div>
+        </div>
+        <div class="editor-right-actions">
+          <button class="editor-btn" onclick="triggerUndo()" title="Undo"><i class="fa-solid fa-arrow-rotate-left"></i></button>
+          <button class="editor-btn" onclick="triggerRedo()" title="Redo"><i class="fa-solid fa-arrow-rotate-right"></i></button>
+          <button class="editor-btn" title="Comments"><i class="fa-regular fa-comment-dots"></i></button>
+          <div class="share-pill" title="Share"><i class="fa-solid fa-user-plus"></i></div>
+          <button class="editor-btn" style="color: #92e0ff;" title="Gemini AI"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+          <button class="editor-btn" onclick="openRenameModal(activeFileId)" title="More options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+        </div>
+      </div>
+
+      <!-- Formula Bar -->
+      <div class="formula-bar-container">
+        <span class="active-cell-badge" id="selected-cell-badge">A1</span>
+        <span class="fx-label">fx</span>
+        <input type="text" class="formula-input" id="formula-input" placeholder="Type text or formula (e.g. =SUM(A1:A5))">
+      </div>
+
+      <!-- Spreadsheet Grid Viewport -->
+      <div class="spreadsheet-viewport" id="spreadsheet-viewport">
+        <table class="sheets-table" id="sheets-table">
+          <!-- Dynamically generated rows & columns -->
+        </table>
+      </div>
+
+      <!-- Bottom Sheet Bar -->
+      <div class="editor-bottom-bar">
+        <button class="editor-btn" style="color:var(--text-muted);"><i class="fa-solid fa-bars"></i></button>
+        <div class="sheet-pill">
+          <span>Sheet1</span>
+          <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
+        </div>
+        <button class="add-sheet-btn" title="Add sheet"><i class="fa-solid fa-plus"></i></button>
+      </div>
+    </div>
+
+    <!-- ACTION MENU OVERLAY (Rename / Delete) -->
+    <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()">
+      <div class="action-sheet" id="action-sheet" onclick="event.stopPropagation()">
+        <div class="action-sheet-title" id="action-sheet-filename">File Title</div>
+        <button class="action-item" onclick="onMenuRenameClick()">
+          <i class="fa-regular fa-pen-to-square"></i>
+          <span>Rename</span>
+        </button>
+        <button class="action-item danger" onclick="onMenuDeleteClick()">
+          <i class="fa-regular fa-trash-can"></i>
+          <span>Delete</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- RENAME DIALOG -->
+    <div class="dialog-overlay" id="rename-dialog" onclick="closeRenameModal()">
+      <div class="dialog-box" onclick="event.stopPropagation()">
+        <h4>Rename document</h4>
+        <input type="text" id="rename-input" placeholder="Enter spreadsheet title">
+        <div class="dialog-actions">
+          <button class="dialog-btn cancel" onclick="closeRenameModal()">Cancel</button>
+          <button class="dialog-btn confirm" onclick="confirmRename()">OK</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // --- Application State & Persistence ---
+    const STORAGE_KEY = 'google_sheets_app_files';
+    // Columns A through Z for desktop & mobile
+    const COLS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
+    const ROWS_COUNT = 45;
+
+    let files = [];
+    let activeFileId = null;
+    let selectedCell = 'A1';
+    let renameTargetId = null;
+    let menuTargetFileId = null;
+    let undoStack = [];
+    let redoStack = [];
+
+    function init() {
+      loadFilesFromStorage();
+      renderHomeFiles();
+      buildGrid();
+      setupEvents();
+    }
+
+    function loadFilesFromStorage() {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        try { files = JSON.parse(raw); } catch (e) { files = []; }
+      } else {
+        files = [];
+      }
+    }
+
+    function saveFilesToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+    }
+
+    // --- Home Screen Logic ---
+    function renderHomeFiles() {
+      const container = document.getElementById('home-content');
+      const filter = document.getElementById('search-input').value.toLowerCase();
+      const filtered = files.filter(f => f.title.toLowerCase().includes(filter));
+
+      if (filtered.length === 0) {
+        // Empty State (English)
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 200 170" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="35" y="45" width="60" height="75" rx="8" fill="#58a6ff" fill-opacity="0.3"/>
+              <rect x="45" y="55" width="25" height="4" rx="2" fill="#58a6ff"/>
+              <rect x="45" y="65" width="40" height="4" rx="2" fill="#58a6ff"/>
+              <rect x="45" y="75" width="30" height="4" rx="2" fill="#58a6ff"/>
+              <rect x="105" y="55" width="60" height="75" rx="8" fill="#0f9d58" fill-opacity="0.3"/>
+              <rect x="115" y="65" width="40" height="30" rx="3" stroke="#0f9d58" stroke-width="3"/>
+              <path d="M135 65v30 M115 80h40" stroke="#0f9d58" stroke-width="3"/>
+              <circle cx="100" cy="90" r="34" fill="#f4a261"/>
+              <rect x="68" y="85" width="64" height="75" rx="6" fill="#fff"/>
+              <circle cx="100" cy="115" r="16" fill="#f9c74f"/>
+              <path d="M94 115l4 4 8-8" stroke="#101317" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <h3>No recent files</h3>
+            <p>Files you recently opened or edited will appear here</p>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '<div class="file-grid">';
+      filtered.forEach(file => {
+        html += `
+          <div class="file-card" onclick="openSpreadsheet('${file.id}')">
+            <div class="file-card-header">
+              <div class="sheets-icon-sm"><i class="fa-solid fa-table"></i></div>
+              <div class="file-title">${escapeHtml(file.title)}</div>
+              <button class="file-menu-btn" onclick="openActionMenu(event, '${file.id}')" title="Options">
+                <i class="fa-solid fa-ellipsis-vertical"></i>
+              </button>
+            </div>
+            <div class="file-preview">
+              <div class="preview-center-icon">
+                <i class="fa-solid fa-table"></i>
+              </div>
+              <div class="preview-badge"><i class="fa-regular fa-clock"></i></div>
+            </div>
+          </div>
+        `;
+      });
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    function createNewSpreadsheet() {
+      const newFile = {
+        id: 'sheet_' + Date.now(),
+        title: 'Untitled spreadsheet',
+        updatedAt: new Date().toISOString(),
+        data: {}
+      };
+      files.unshift(newFile);
+      saveFilesToStorage();
+      openSpreadsheet(newFile.id);
+    }
+
+    function openSpreadsheet(id) {
+      activeFileId = id;
+      const file = files.find(f => f.id === id);
+      if (!file) return;
+
+      document.getElementById('editor-title').innerText = file.title;
+      document.getElementById('home-screen').classList.remove('active');
+      document.getElementById('editor-screen').classList.add('active');
+
+      undoStack = [];
+      redoStack = [];
+      refreshGridValues();
+      selectCell('A1');
+    }
+
+    function exitToHome() {
+      document.getElementById('editor-screen').classList.remove('active');
+      document.getElementById('home-screen').classList.add('active');
+      renderHomeFiles();
+    }
+
+    // --- Action Bottom Sheet (Rename & Delete) ---
+    function openActionMenu(e, fileId) {
+      e.stopPropagation();
+      menuTargetFileId = fileId;
+      const file = files.find(f => f.id === fileId);
+      if (!file) return;
+
+      document.getElementById('action-sheet-filename').innerText = file.title;
+      const overlay = document.getElementById('action-sheet-overlay');
+      const sheet = document.getElementById('action-sheet');
+      overlay.style.display = 'flex';
+      setTimeout(() => sheet.classList.add('show'), 10);
+    }
+
+    function closeActionSheet() {
+      const sheet = document.getElementById('action-sheet');
+      sheet.classList.remove('show');
+      setTimeout(() => {
+        document.getElementById('action-sheet-overlay').style.display = 'none';
+      }, 200);
+    }
+
+    function onMenuRenameClick() {
+      const targetId = menuTargetFileId;
+      closeActionSheet();
+      openRenameModal(targetId);
+    }
+
+    function onMenuDeleteClick() {
+      const targetId = menuTargetFileId;
+      closeActionSheet();
+      if (confirm("Are you sure you want to delete this spreadsheet?")) {
+        deleteSpreadsheet(targetId);
+      }
+    }
+
+    function deleteSpreadsheet(fileId) {
+      files = files.filter(f => f.id !== fileId);
+      saveFilesToStorage();
+      if (activeFileId === fileId) {
+        exitToHome();
+      } else {
+        renderHomeFiles();
+      }
+    }
+
+    // --- Rename Dialog Logic (Fixed & Robust) ---
+    function openRenameModal(fileId) {
+      if (!fileId) return;
+      const file = files.find(f => f.id === fileId);
+      if (!file) return;
+
+      renameTargetId = fileId; // Store dedicated target ID
+      const input = document.getElementById('rename-input');
+      input.value = file.title;
+      document.getElementById('rename-dialog').style.display = 'flex';
+      setTimeout(() => {
+        input.focus();
+        input.select();
+      }, 50);
+    }
+
+    function closeRenameModal() {
+      document.getElementById('rename-dialog').style.display = 'none';
+      renameTargetId = null;
+    }
+
+    function confirmRename() {
+      const input = document.getElementById('rename-input');
+      const newTitle = input.value.trim();
+
+      if (newTitle && renameTargetId) {
+        const file = files.find(f => f.id === renameTargetId);
+        if (file) {
+          file.title = newTitle;
+          file.updatedAt = new Date().toISOString();
+          saveFilesToStorage();
+
+          // Update header if currently opened in editor
+          if (activeFileId === file.id) {
+            document.getElementById('editor-title').innerText = newTitle;
+          }
+          renderHomeFiles();
+        }
+      }
+      closeRenameModal();
+    }
+
+    // --- Grid Table Construction ---
+    function buildGrid() {
+      const table = document.getElementById('sheets-table');
+      table.innerHTML = '';
+
+      // Header row with column letters (A-Z)
+      const theadRow = document.createElement('tr');
+      const corner = document.createElement('th');
+      corner.className = 'corner-header';
+      theadRow.appendChild(corner);
+
+      COLS.forEach(col => {
+        const th = document.createElement('th');
+        th.className = 'col-header';
+        th.innerText = col;
+        theadRow.appendChild(th);
+      });
+      table.appendChild(theadRow);
+
+      // Data rows (1 to ROWS_COUNT)
+      for (let r = 1; r <= ROWS_COUNT; r++) {
+        const tr = document.createElement('tr');
+        const rowHeader = document.createElement('th');
+        rowHeader.className = 'row-header';
+        rowHeader.innerText = r;
+        tr.appendChild(rowHeader);
+
+        COLS.forEach(col => {
+          const cellId = `${col}${r}`;
+          const td = document.createElement('td');
+          td.className = 'cell';
+          td.id = `cell-${cellId}`;
+          td.dataset.cellId = cellId;
+
+          td.addEventListener('click', () => selectCell(cellId));
+          td.addEventListener('dblclick', () => {
+            selectCell(cellId);
+            document.getElementById('formula-input').focus();
+          });
+
+          tr.appendChild(td);
+        });
+        table.appendChild(tr);
+      }
+    }
+
+    function selectCell(cellId) {
+      if (selectedCell) {
+        const prev = document.getElementById(`cell-${selectedCell}`);
+        if (prev) prev.classList.remove('selected');
+      }
+
+      selectedCell = cellId;
+      const el = document.getElementById(`cell-${cellId}`);
+      if (el) el.classList.add('selected');
+
+      document.getElementById('selected-cell-badge').innerText = cellId;
+
+      const file = files.find(f => f.id === activeFileId);
+      const cellData = file && file.data && file.data[cellId];
+      const formulaInput = document.getElementById('formula-input');
+      formulaInput.value = cellData ? cellData.raw : '';
+    }
+
+    function setupEvents() {
+      const formulaInput = document.getElementById('formula-input');
+      
+      // Enter key in Formula Bar moves down to next cell
+      formulaInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          saveCurrentCellValue(formulaInput.value);
+          const col = selectedCell.charAt(0);
+          const row = parseInt(selectedCell.slice(1));
+          if (row < ROWS_COUNT) {
+            selectCell(`${col}${row + 1}`);
+          }
+        }
+      });
+
+      formulaInput.addEventListener('input', () => {
+        saveCurrentCellValue(formulaInput.value, false);
+      });
+
+      // Press Enter inside Rename dialog to confirm rename
+      const renameInput = document.getElementById('rename-input');
+      renameInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          confirmRename();
+        } else if (e.key === 'Escape') {
+          closeRenameModal();
+        }
+      });
+    }
+
+    function saveCurrentCellValue(value, pushUndo = true) {
+      const file = files.find(f => f.id === activeFileId);
+      if (!file) return;
+
+      if (!file.data) file.data = {};
+      const prevData = file.data[selectedCell] ? file.data[selectedCell].raw : '';
+
+      if (pushUndo && prevData !== value) {
+        undoStack.push({ cellId: selectedCell, oldVal: prevData, newVal: value });
+        redoStack = [];
+      }
+
+      if (value === '') {
+        delete file.data[selectedCell];
+      } else {
+        file.data[selectedCell] = {
+          raw: value,
+          val: evaluateFormula(value, file.data)
+        };
+      }
+
+      saveFilesToStorage();
+      refreshGridValues();
+
+      const saveStatus = document.getElementById('save-status');
+      saveStatus.innerText = "Saving...";
+      setTimeout(() => { saveStatus.innerText = "Saved to storage"; }, 400);
+    }
+
+    // Formula Evaluator
+    function evaluateFormula(raw, data) {
+      if (typeof raw !== 'string' || !raw.startsWith('=')) {
+        return raw;
+      }
+
+      try {
+        let formula = raw.substring(1).toUpperCase().trim();
+
+        // Formula: =SUM(A1:A5)
+        if (formula.startsWith('SUM(') && formula.endsWith(')')) {
+          const range = formula.substring(4, formula.length - 1);
+          return sumRange(range, data);
+        }
+
+        // Formula: =AVERAGE(A1:A5)
+        if (formula.startsWith('AVERAGE(') && formula.endsWith(')')) {
+          const range = formula.substring(8, formula.length - 1);
+          return avgRange(range, data);
+        }
+
+        // Cell References & Basic Math
+        const parsed = formula.replace(/[A-Z][0-9]+/g, (match) => {
+          const cell = data[match];
+          if (!cell) return 0;
+          const num = parseFloat(cell.val);
+          return isNaN(num) ? 0 : num;
+        });
+
+        return Function(`"use strict"; return (${parsed})`)();
+      } catch (err) {
+        return '#VALUE!';
+      }
+    }
+
+    function getRangeCells(range) {
+      const [start, end] = range.split(':');
+      if (!start || !end) return [];
+
+      const startCol = start.charCodeAt(0);
+      const startRow = parseInt(start.slice(1));
+      const endCol = end.charCodeAt(0);
+      const endRow = parseInt(end.slice(1));
+
+      const cells = [];
+      for (let c = Math.min(startCol, endCol); c <= Math.max(startCol, endCol); c++) {
+        for (let r = Math.min(startRow, endRow); r <= Math.max(startRow, endRow); r++) {
+          cells.push(`${String.fromCharCode(c)}${r}`);
+        }
+      }
+      return cells;
+    }
+
+    function sumRange(range, data) {
+      const cells = getRangeCells(range);
+      let sum = 0;
+      cells.forEach(cid => {
+        if (data[cid]) {
+          const n = parseFloat(data[cid].val);
+          if (!isNaN(n)) sum += n;
+        }
+      });
+      return sum;
+    }
+
+    function avgRange(range, data) {
+      const cells = getRangeCells(range);
+      let sum = 0, count = 0;
+      cells.forEach(cid => {
+        if (data[cid]) {
+          const n = parseFloat(data[cid].val);
+          if (!isNaN(n)) {
+            sum += n;
+            count++;
+          }
+        }
+      });
+      return count > 0 ? (sum / count) : 0;
+    }
+
+    function refreshGridValues() {
+      const file = files.find(f => f.id === activeFileId);
+      const data = file ? (file.data || {}) : {};
+
+      COLS.forEach(col => {
+        for (let r = 1; r <= ROWS_COUNT; r++) {
+          const cellId = `${col}${r}`;
+          const td = document.getElementById(`cell-${cellId}`);
+          if (!td) continue;
+
+          if (data[cellId]) {
+            const calculated = evaluateFormula(data[cellId].raw, data);
+            data[cellId].val = calculated;
+            td.innerText = calculated;
+          } else {
+            td.innerText = '';
+          }
+        }
+      });
+    }
+
+    // --- Undo & Redo ---
+    function triggerUndo() {
+      if (undoStack.length === 0) return;
+      const action = undoStack.pop();
+      redoStack.push(action);
+
+      selectCell(action.cellId);
+      document.getElementById('formula-input').value = action.oldVal;
+      saveCurrentCellValue(action.oldVal, false);
+    }
+
+    function triggerRedo() {
+      if (redoStack.length === 0) return;
+      const action = redoStack.pop();
+      undoStack.push(action);
+
+      selectCell(action.cellId);
+      document.getElementById('formula-input').value = action.newVal;
+      saveCurrentCellValue(action.newVal, false);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.innerText = text;
+      return div.innerHTML;
+    }
+
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>

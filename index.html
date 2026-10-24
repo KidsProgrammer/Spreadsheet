@@ -2,1170 +2,656 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Google Sheets</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Sheets - Dark Mode</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts Roboto -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Roboto', 'sans-serif'],
+          },
+          colors: {
+            sheetDark: {
+              900: '#111315', // Main app background
+              800: '#1b1d20', // Surface / Card bg
+              700: '#282a2d', // Headers & Bars
+              600: '#383b40', // Borders & Grid lines
+              500: '#53575e', // Subtle border
+            },
+            accentCyan: {
+              DEFAULT: '#78d9ec', // Google Sheets Android Teal/Cyan Pill
+              dark: '#004d61',
+              text: '#003640',
+            },
+            sheetsGreen: '#0f9d58'
+          }
+        }
+      }
+    }
+  </script>
+
   <style>
-    :root {
-      --bg-dark: #101317;
-      --surface-dark: #1a1e24;
-      --surface-variant: #252b34;
-      --border-dark: #2c333e;
-      --text-main: #e2e5e9;
-      --text-muted: #8e959e;
-      --accent-teal: #7fcfff;
-      --fab-bg: #004d61;
-      --fab-icon: #a6eeff;
-      --sheets-green: #0f9d58;
-      --active-pill: #7ec8e3;
-      --active-pill-text: #003544;
-      --header-active-bg: #004d61;
-      --header-active-text: #a6eeff;
-      --app-height: 100%;
+    /* Custom Scrollbar for Spreadsheet Grid */
+    ::-webkit-scrollbar {
+      width: 10px;
+      height: 10px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1b1d20;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #383b40;
+      border-radius: 5px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #53575e;
     }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    html, body {
-      height: 100%;
-      width: 100%;
-      overflow: hidden;
-      background-color: var(--bg-dark);
-      color: var(--text-main);
-    }
-
-    .app-container {
-      width: 100%;
-      height: 100%;
-      height: 100dvh;
-      max-height: var(--app-height);
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* Screen Management */
-    .screen {
-      display: none;
-      flex-direction: column;
-      height: 100%;
-      width: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      right: 0;
-      background: var(--bg-dark);
-      overflow: hidden;
-    }
-
-    .screen.active {
-      display: flex;
+    .cell-selected {
+      outline: 2px solid #78d9ec !important;
+      outline-offset: -2px;
+      background-color: rgba(120, 217, 236, 0.08) !important;
       z-index: 10;
     }
 
-    /* ---------------- HOME SCREEN ---------------- */
-    .home-header {
-      padding: 12px 14px 8px;
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      flex-shrink: 0;
+    /* Fixed table styling */
+    .grid-table {
+      border-collapse: separate;
+      border-spacing: 0;
     }
-
-    .search-box {
-      background: var(--surface-variant);
-      border-radius: 28px;
-      height: 48px;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      gap: 14px;
-      color: var(--text-muted);
-      width: 100%;
-      max-width: 720px;
-    }
-
-    .search-box input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      font-size: 15px;
-      flex: 1;
-    }
-
-    .home-filter-wrapper {
-      max-width: 1100px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 6px 14px 10px;
-      flex-shrink: 0;
-    }
-
-    .sort-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-main);
-      background: transparent;
-      border: none;
-      cursor: pointer;
-    }
-
-    .sort-icon-bubble {
-      width: 26px;
-      height: 26px;
-      background: #1f2730;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-    }
-
-    .view-toggles {
-      display: flex;
-      background: #1b222a;
-      border-radius: 20px;
-      padding: 2px;
-    }
-
-    .view-btn {
-      width: 34px;
-      height: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 16px;
-      color: var(--text-muted);
-      border: none;
-      background: transparent;
-      cursor: pointer;
-    }
-
-    .view-btn.active {
-      background: #394857;
-      color: #fff;
-    }
-
-    /* Content Area */
-    .home-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px 12px calc(90px + env(safe-area-inset-bottom, 0px));
-      max-width: 1140px;
-      width: 100%;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Empty State */
-    .empty-state {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 20px;
-    }
-
-    .empty-state svg {
-      width: 160px;
-      height: auto;
-      margin-bottom: 24px;
-    }
-
-    .empty-state h3 {
-      font-size: 18px;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-
-    .empty-state p {
-      font-size: 13px;
-      color: var(--text-muted);
-      max-width: 280px;
-      line-height: 1.4;
-    }
-
-    /* File Grid: Strictly 2 columns on Mobile, auto-fill on Desktop */
-    .file-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 12px;
-    }
-
-    @media (min-width: 600px) {
-      .file-grid {
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 16px;
-      }
-    }
-
-    .file-card {
-      background: var(--surface-dark);
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      cursor: pointer;
-      border: 1px solid #1e2631;
-      transition: transform 0.15s;
-    }
-
-    .file-card:hover {
-      border-color: #384656;
-      transform: translateY(-2px);
-    }
-
-    .file-card-header {
-      padding: 10px 8px 4px 10px;
-      display: flex;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
-    .sheets-icon-sm {
-      background: var(--sheets-green);
-      color: white;
-      border-radius: 4px;
-      width: 20px;
-      height: 20px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-      flex-shrink: 0;
-    }
-
-    .file-title {
-      font-size: 12.5px;
-      font-weight: 500;
-      color: var(--text-main);
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      flex: 1;
-      line-height: 1.3;
-    }
-
-    .file-menu-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      padding: 2px 4px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .file-menu-btn:hover {
-      background: #27303d;
-      color: #fff;
-    }
-
-    .file-preview {
-      height: 96px;
-      background: #14181f;
-      margin: 6px 8px 8px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-    }
-
-    .preview-center-icon {
-      width: 42px;
-      height: 42px;
-      background: var(--sheets-green);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: white;
-      font-size: 20px;
-    }
-
-    .preview-badge {
-      position: absolute;
-      bottom: 6px;
-      right: 6px;
-      background: #2b333d;
-      border-radius: 50%;
-      width: 18px;
-      height: 18px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 9px;
-      color: var(--text-muted);
-    }
-
-    /* Floating Action Button '+' */
-    .fab {
-      position: absolute;
-      bottom: calc(24px + env(safe-area-inset-bottom, 0px));
-      right: 20px;
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
-      background: var(--fab-bg);
-      color: var(--fab-icon);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      border: none;
-      box-shadow: 0 4px 18px rgba(0,0,0,0.6);
-      cursor: pointer;
-      z-index: 60;
-      transition: transform 0.15s ease;
-    }
-
-    .fab:active {
-      transform: scale(0.95);
-    }
-
-    /* ---------------- SPREADSHEET EDITOR ---------------- */
-    .editor-topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 12px;
-      background: var(--bg-dark);
-      border-bottom: 1px solid #1c222b;
-      gap: 8px;
-      flex-shrink: 0;
-    }
-
-    .editor-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .editor-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-size: 16px;
-      padding: 8px;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .editor-btn:hover {
-      background: #222933;
-    }
-
-    .editor-titles {
-      display: flex;
-      flex-direction: column;
-      cursor: pointer;
-      overflow: hidden;
+    .grid-cell {
+      border-right: 1px solid #2d3034;
+      border-bottom: 1px solid #2d3034;
       white-space: nowrap;
-      padding: 2px 6px;
-      border-radius: 6px;
-    }
-
-    .editor-titles:hover {
-      background: #1b232c;
-    }
-
-    .editor-title-text {
-      font-size: 16px;
-      font-weight: 500;
-      color: var(--text-main);
       overflow: hidden;
       text-overflow: ellipsis;
-    }
-
-    .editor-subtitle {
-      font-size: 11px;
-      color: var(--text-muted);
-    }
-
-    .editor-right-actions {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-    }
-
-    .share-pill {
-      background: #7fc8f8;
-      color: #04273c;
-      border-radius: 20px;
-      padding: 6px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      font-weight: 500;
-      cursor: pointer;
-      margin: 0 4px;
-    }
-
-    /* Formula input bar */
-    .formula-bar-container {
-      display: flex;
-      align-items: center;
-      padding: 6px 14px;
-      background: #14181f;
-      border-bottom: 1px solid var(--border-dark);
-      gap: 12px;
-      flex-shrink: 0;
-    }
-
-    .active-cell-badge {
-      font-size: 13px;
-      font-weight: bold;
-      color: var(--accent-teal);
-      min-width: 28px;
-    }
-
-    .fx-label {
-      font-style: italic;
-      color: var(--text-muted);
-      font-size: 14px;
-      font-weight: bold;
-    }
-
-    .formula-input {
-      background: transparent;
-      border: none;
-      outline: none;
-      color: var(--text-main);
-      font-size: 13px;
-      width: 100%;
-    }
-
-    /* Spreadsheet Grid Viewport */
-    .spreadsheet-viewport {
-      flex: 1;
-      overflow: auto;
-      background: #000;
-      position: relative;
-    }
-
-    table.sheets-table {
-      border-collapse: collapse;
-      table-layout: fixed;
-      background: #000;
       user-select: none;
     }
-
-    th, td {
-      border: 1px solid var(--border-dark);
-      font-size: 13px;
-      color: var(--text-main);
-      height: 26px;
-      min-height: 26px;
-      padding: 0 6px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    th {
-      background: #101317;
-      color: var(--text-muted);
-      text-align: center;
-      font-weight: 500;
-    }
-
-    th.col-header {
-      width: 86px;
-      min-width: 86px;
-      position: sticky;
-      top: 0;
-      z-index: 2;
-    }
-
-    th.row-header {
-      width: 44px;
-      min-width: 44px;
-      position: sticky;
-      left: 0;
-      z-index: 2;
-    }
-
-    th.corner-header {
-      position: sticky;
-      top: 0;
-      left: 0;
-      z-index: 3;
-      background: #101317;
-    }
-
-    /* Highlighted Header when cell is selected (Screenshot 3 style) */
-    th.active-header {
-      background: var(--header-active-bg) !important;
-      color: var(--header-active-text) !important;
-      font-weight: 600;
-    }
-
-    td.cell {
-      background: #000000;
-      cursor: cell;
-    }
-
-    td.cell.selected {
-      outline: 2px solid #3c82f6;
-      outline-offset: -2px;
-      background: #0a1b2d;
-    }
-
-    /* Bottom Sheet Bar */
-    .editor-bottom-bar {
-      min-height: 48px;
-      padding-bottom: env(safe-area-inset-bottom, 0px);
-      background: var(--bg-dark);
-      border-top: 1px solid #1c222b;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding-left: 14px;
-      padding-right: 14px;
-      flex-shrink: 0;
-    }
-
-    .bottom-bar-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sheet-pill {
-      background: var(--active-pill);
-      color: var(--active-pill-text);
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 14px;
-      border-radius: 18px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-    }
-
-    .add-sheet-btn {
-      width: 34px;
-      height: 34px;
-      background: #1c242c;
-      border-radius: 50%;
-      border: none;
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-
-    .add-sheet-btn:active {
-      background: #2a3542;
-    }
-
-    /* FIXED POPUP BOTTOM ACTION SHEET (No cutoff) */
-    .action-sheet-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.7);
-      z-index: 9999;
-      display: none;
-      align-items: flex-end;
-      justify-content: center;
-    }
-
-    .action-sheet {
-      background: var(--surface-dark);
-      width: 100%;
-      max-width: 500px;
-      border-radius: 20px 20px 0 0;
-      /* Generous bottom padding ensures delete button is never covered */
-      padding: 20px 16px calc(38px + env(safe-area-inset-bottom, 24px));
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      transform: translateY(100%);
-      transition: transform 0.22s cubic-bezier(0.1, 0.9, 0.2, 1);
-      box-shadow: 0 -8px 24px rgba(0,0,0,0.8);
-      border-top: 1px solid #28303d;
-    }
-
-    .action-sheet.show {
-      transform: translateY(0);
-    }
-
-    .action-sheet-title {
-      font-size: 14.5px;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-bottom: 8px;
-      padding-left: 10px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .action-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 13px 14px;
-      background: transparent;
-      border: none;
-      color: var(--text-main);
-      font-size: 15px;
-      border-radius: 10px;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .action-item:hover, .action-item:active {
-      background: #252e3a;
-    }
-
-    .action-item.danger {
-      color: #ff6b6b;
-    }
-
-    /* Universal Rename Dialog Modal */
-    .dialog-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0,0,0,0.7);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 10000;
-      padding: 20px;
-    }
-
-    .dialog-box {
-      background: var(--surface-dark);
-      border-radius: 16px;
-      padding: 24px;
-      width: 100%;
-      max-width: 340px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-      border: 1px solid #2e3642;
-    }
-
-    .dialog-box h4 {
-      font-size: 17px;
-      margin-bottom: 14px;
-    }
-
-    .dialog-box input {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px solid var(--border-dark);
-      background: #11151a;
-      color: #fff;
-      font-size: 14px;
+    .grid-cell:focus {
       outline: none;
-      margin-bottom: 18px;
     }
-
-    .dialog-box input:focus {
-      border-color: var(--accent-teal);
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .dialog-btn {
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      border: none;
-      cursor: pointer;
-    }
-
-    .dialog-btn.cancel {
-      background: transparent;
-      color: var(--text-muted);
-    }
-
-    .dialog-btn.confirm {
-      background: var(--accent-teal);
-      color: #032b40;
-      font-weight: 600;
-    }
-
-    /* Sheet Switcher Menu */
-    .sheet-list-container {
-      max-height: 250px;
-      overflow-y: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-top: 8px;
-    }
-
-    .sheet-option-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 12px 14px;
-      border-radius: 8px;
-      background: #171c23;
-      color: var(--text-main);
-      border: none;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .sheet-option-item.active {
-      background: #004d61;
-      color: #a6eeff;
-      font-weight: 600;
+    .header-cell {
+      border-right: 1px solid #383b40;
+      border-bottom: 1px solid #383b40;
+      background-color: #1b1d20;
+      color: #9aa0a6;
+      font-size: 11px;
+      font-weight: 500;
+      user-select: none;
     }
   </style>
 </head>
-<body>
+<body class="bg-sheetDark-900 text-[#e3e3e3] font-sans antialiased h-screen w-screen overflow-hidden select-none">
 
-  <div class="app-container">
-
-    <!-- 1. HOME SCREEN -->
-    <div id="home-screen" class="screen active">
-      <div class="home-header">
-        <div class="search-box">
-          <i class="fa-solid fa-bars"></i>
-          <input type="text" placeholder="Search spreadsheets" id="search-input" oninput="renderHomeFiles()">
-          <i class="fa-regular fa-folder"></i>
-        </div>
-      </div>
-
-      <div class="home-filter-wrapper">
-        <button class="sort-pill">
-          <span>Date opened by me</span>
-          <div class="sort-icon-bubble">
-            <i class="fa-solid fa-arrow-down"></i>
-          </div>
+  <!-- ========================================== -->
+  <!-- VIEW 1: DASHBOARD / FILES VIEW             -->
+  <!-- ========================================== -->
+  <div id="dashboardView" class="h-full w-full flex flex-col">
+    <!-- Top Search Header -->
+    <header class="p-3 sm:px-6 sm:py-4 flex items-center justify-between gap-3 border-b border-sheetDark-800">
+      <div class="flex items-center gap-3 flex-1 max-w-3xl">
+        <button onclick="toggleSideMenu()" class="p-2.5 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <div class="view-toggles">
-          <button class="view-btn"><i class="fa-solid fa-list-ul"></i></button>
-          <button class="view-btn active"><i class="fa-solid fa-table-cells-large"></i></button>
+        <!-- Search bar (styled exactly like image 1 & 2) -->
+        <div class="flex-1 flex items-center bg-sheetDark-800 rounded-full px-4 py-2 text-sm border border-transparent focus-within:border-accentCyan focus-within:bg-[#1f2124] transition-all">
+          <svg class="w-5 h-5 text-[#8e918f] mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          <input type="text" id="searchInput" placeholder="Search spreadsheets" oninput="renderDashboard()" class="bg-transparent border-none outline-none w-full text-[#e3e3e3] placeholder-[#8e918f] text-sm">
+          <button title="Folders" class="p-1 rounded-full text-[#c4c7c5] hover:bg-sheetDark-700 ml-1">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Desktop Quick New Button -->
+      <button onclick="createNewSpreadsheet()" class="hidden sm:flex items-center gap-2 bg-[#1f2b30] border border-[#2b4b52] hover:bg-[#253940] text-accentCyan px-4 py-2 rounded-full font-medium text-sm transition-colors">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <span>Blank spreadsheet</span>
+      </button>
+    </header>
+
+    <!-- Sub Toolbar: Sort & Layout toggles -->
+    <div class="px-4 sm:px-8 py-3 flex items-center justify-between text-sm text-[#c4c7c5]">
+      <div class="flex items-center gap-2 cursor-pointer hover:text-white" onclick="toggleSort()">
+        <span id="sortLabel" class="font-medium">Date opened by me</span>
+        <svg class="w-4 h-4 text-accentCyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </div>
+
+      <div class="flex items-center gap-1 bg-sheetDark-800 p-1 rounded-lg">
+        <button id="viewListBtn" onclick="setViewMode('list')" class="p-1.5 rounded hover:bg-sheetDark-700 text-[#8e918f]" title="List view">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <button id="viewGridBtn" onclick="setViewMode('grid')" class="p-1.5 rounded bg-sheetDark-700 text-white" title="Grid view">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zm10 0a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content Area: Files or Empty State -->
+    <main class="flex-1 overflow-y-auto p-4 sm:p-8" id="filesContainer">
+      <!-- Injected by JavaScript -->
+    </main>
+
+    <!-- Floating Action Button (FAB) (Exact design as Screenshot 1 & 2) -->
+    <button onclick="createNewSpreadsheet()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-14 h-14 rounded-2xl bg-[#004d61] hover:bg-[#005f78] text-accentCyan shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-30" title="Create new spreadsheet">
+      <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+    </button>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- VIEW 2: SPREADSHEET EDITOR VIEW            -->
+  <!-- ========================================== -->
+  <div id="editorView" class="h-full w-full flex flex-col hidden bg-sheetDark-900">
+    <!-- Editor Header Toolbar (as in image 3 & 4) -->
+    <header class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-2 flex items-center justify-between gap-2">
+      <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
+        <!-- Back to Dashboard button -->
+        <button onclick="backToDashboard()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#e3e3e3]" title="Back to files">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+        </button>
+
+        <!-- Spreadsheet Title with Inline Rename -->
+        <div class="flex flex-col min-w-0">
+          <div class="flex items-center gap-2 group cursor-pointer" onclick="openRenameModal(activeFile.id)">
+            <input type="text" id="editorTitleInput" value="Untitled spreadsheet" 
+                   onchange="handleHeaderTitleChange(this.value)"
+                   class="bg-transparent text-base sm:text-lg font-medium text-white truncate border border-transparent hover:border-sheetDark-600 focus:border-accentCyan rounded px-1.5 py-0.5 outline-none max-w-[220px] sm:max-w-md">
+            <svg class="w-3.5 h-3.5 text-[#8e918f] group-hover:text-accentCyan opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+          </div>
+          <span id="saveStatus" class="text-[11px] text-[#8e918f] pl-1.5">Saved locally</span>
         </div>
       </div>
 
-      <div class="home-content" id="home-content">
-        <!-- Rendered dynamically -->
-      </div>
+      <!-- Action Buttons -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <button onclick="undo()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Undo (Ctrl+Z)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 015 5v2m-15-7l4-4m-4 4l4 4"/></svg>
+        </button>
+        <button onclick="redo()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Redo (Ctrl+Y)">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 00-5 5v2m15-7l-4-4m4 4l-4 4"/></svg>
+        </button>
 
-      <!-- Floating Action Button '+' -->
-      <button class="fab" onclick="createNewSpreadsheet()" title="Create new spreadsheet">
-        <i class="fa-solid fa-plus"></i>
+        <!-- Quick Format Button (A icon as shown in image 3) -->
+        <button onclick="toggleFormatToolbar()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Format text/cell">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5 18v-2h4.5l3.5-9h2l3.5 9H23v2H5zm7.2-4.5h3.6L14 8.7h-.2l-1.6 4.8zM2 4h10v2H2V4z"/>
+          </svg>
+        </button>
+
+        <!-- Insert element (+) -->
+        <button onclick="openInsertModal()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Insert">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        </button>
+
+        <!-- Share button -->
+        <button onclick="exportCSV()" class="hidden sm:flex items-center gap-1.5 bg-sheetDark-700 hover:bg-sheetDark-600 px-3 py-1.5 rounded-full text-xs font-medium text-white transition-colors" title="Export CSV">
+          <svg class="w-4 h-4 text-accentCyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          Export
+        </button>
+
+        <!-- Context menu -->
+        <div class="relative">
+          <button onclick="toggleEditorMenu()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="More options">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+          </button>
+          
+          <!-- Dropdown menu -->
+          <div id="editorDropdown" class="hidden absolute right-0 mt-2 w-48 bg-sheetDark-800 border border-sheetDark-700 rounded-xl shadow-2xl py-2 z-50">
+            <button onclick="openRenameModal(activeFile.id); toggleEditorMenu()" class="w-full text-left px-4 py-2 text-sm text-[#e3e3e3] hover:bg-sheetDark-700 flex items-center gap-3">
+              <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              Rename file
+            </button>
+            <button onclick="exportCSV(); toggleEditorMenu()" class="w-full text-left px-4 py-2 text-sm text-[#e3e3e3] hover:bg-sheetDark-700 flex items-center gap-3">
+              <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              Download CSV
+            </button>
+            <div class="h-[1px] bg-sheetDark-700 my-1"></div>
+            <button onclick="deleteActiveFile(); toggleEditorMenu()" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-sheetDark-700 flex items-center gap-3">
+              <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Delete spreadsheet
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Formula Bar (as seen in Image 3) -->
+    <div class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-1.5 flex items-center gap-3 text-sm">
+      <div id="activeCellAddress" class="text-xs font-mono font-bold text-accentCyan w-10 text-center bg-sheetDark-900 py-1 rounded border border-sheetDark-600">
+        A1
+      </div>
+      <div class="text-[#8e918f] font-serif italic text-base select-none">
+        fx
+      </div>
+      <input type="text" id="formulaInput" placeholder="Enter text or formula (e.g. =SUM(A1:A5))"
+             oninput="handleFormulaInput(this.value)"
+             onkeydown="handleFormulaKeydown(event)"
+             class="flex-1 bg-sheetDark-900 text-[#e3e3e3] border border-sheetDark-600 rounded-lg px-3 py-1 text-sm outline-none focus:border-accentCyan placeholder-[#6e7278]">
+      <button onclick="commitCellEdit()" class="p-1.5 rounded bg-sheetDark-700 text-accentCyan hover:bg-sheetDark-600" title="Apply">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
       </button>
     </div>
 
-    <!-- 2. SPREADSHEET EDITOR SCREEN -->
-    <div id="editor-screen" class="screen">
-      <div class="editor-topbar">
-        <div class="editor-left">
-          <button class="editor-btn" onclick="exitToHome()" title="Back to home">
-            <i class="fa-solid fa-arrow-left"></i>
-          </button>
-          <div class="editor-titles" onclick="openRenameModal(activeFileId)" title="Click to rename">
-            <span class="editor-title-text" id="editor-title">Untitled spreadsheet</span>
-            <span class="editor-subtitle" id="save-status">Saved to storage</span>
-          </div>
-        </div>
-        <div class="editor-right-actions">
-          <button class="editor-btn" onclick="triggerUndo()" title="Undo"><i class="fa-solid fa-arrow-rotate-left"></i></button>
-          <button class="editor-btn" onclick="triggerRedo()" title="Redo"><i class="fa-solid fa-arrow-rotate-right"></i></button>
-          <button class="editor-btn" title="Comments"><i class="fa-regular fa-comment-dots"></i></button>
-          <div class="share-pill" title="Share"><i class="fa-solid fa-user-plus"></i></div>
-          <!-- AI sparkle logo retained -->
-          <button class="editor-btn" style="color: #92e0ff;" title="Gemini AI"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
-          <button class="editor-btn" onclick="openRenameModal(activeFileId)" title="More options"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-        </div>
+    <!-- Desktop Formatting Toolbar (Shown on Desktop & togglable on mobile) -->
+    <div id="formatToolbar" class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-1.5 flex items-center gap-1 sm:gap-2 overflow-x-auto text-xs text-[#c4c7c5]">
+      <!-- Text styling -->
+      <button onclick="formatCell('bold')" id="btnBold" class="p-1.5 rounded hover:bg-sheetDark-700 font-bold" title="Bold (Ctrl+B)">B</button>
+      <button onclick="formatCell('italic')" id="btnItalic" class="p-1.5 rounded hover:bg-sheetDark-700 italic" title="Italic (Ctrl+I)">I</button>
+      <button onclick="formatCell('strikethrough')" id="btnStrike" class="p-1.5 rounded hover:bg-sheetDark-700 line-through" title="Strikethrough">S</button>
+      
+      <div class="h-4 w-[1px] bg-sheetDark-600 mx-1"></div>
+
+      <!-- Alignments -->
+      <button onclick="formatCell('align', 'left')" class="p-1.5 rounded hover:bg-sheetDark-700" title="Align Left">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h14"/></svg>
+      </button>
+      <button onclick="formatCell('align', 'center')" class="p-1.5 rounded hover:bg-sheetDark-700" title="Align Center">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M7 12h10M5 18h14"/></svg>
+      </button>
+      <button onclick="formatCell('align', 'right')" class="p-1.5 rounded hover:bg-sheetDark-700" title="Align Right">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M10 12h10M6 18h14"/></svg>
+      </button>
+
+      <div class="h-4 w-[1px] bg-sheetDark-600 mx-1"></div>
+
+      <!-- Text Color Picker -->
+      <label class="p-1.5 rounded hover:bg-sheetDark-700 cursor-pointer flex items-center gap-1" title="Text Color">
+        <span class="font-bold underline decoration-accentCyan">A</span>
+        <input type="color" onchange="formatCell('color', this.value)" class="w-0 h-0 opacity-0 absolute">
+      </label>
+
+      <!-- Fill Color Picker -->
+      <label class="p-1.5 rounded hover:bg-sheetDark-700 cursor-pointer flex items-center gap-1" title="Fill Color">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <input type="color" onchange="formatCell('bgColor', this.value)" class="w-0 h-0 opacity-0 absolute">
+      </label>
+
+      <div class="h-4 w-[1px] bg-sheetDark-600 mx-1"></div>
+
+      <!-- Quick Functions -->
+      <div class="hidden sm:flex items-center gap-1">
+        <button onclick="insertFormulaTemplate('SUM')" class="px-2 py-1 rounded bg-sheetDark-700 hover:bg-sheetDark-600 text-[11px] font-mono">SUM</button>
+        <button onclick="insertFormulaTemplate('AVERAGE')" class="px-2 py-1 rounded bg-sheetDark-700 hover:bg-sheetDark-600 text-[11px] font-mono">AVG</button>
+        <button onclick="insertFormulaTemplate('COUNT')" class="px-2 py-1 rounded bg-sheetDark-700 hover:bg-sheetDark-600 text-[11px] font-mono">COUNT</button>
       </div>
 
-      <!-- Formula Bar -->
-      <div class="formula-bar-container">
-        <span class="active-cell-badge" id="selected-cell-badge">A1</span>
-        <span class="fx-label">fx</span>
-        <input type="text" class="formula-input" id="formula-input" placeholder="Type text or formula (e.g. =SUM(A1:A5))">
-      </div>
+      <div class="flex-1"></div>
 
-      <!-- Spreadsheet Grid Viewport -->
-      <div class="spreadsheet-viewport" id="spreadsheet-viewport">
-        <table class="sheets-table" id="sheets-table">
-          <!-- Dynamically generated rows & columns -->
-        </table>
-      </div>
-
-      <!-- Bottom Sheet Bar with Sheet Switching & '+' Button -->
-      <div class="editor-bottom-bar">
-        <div class="bottom-bar-left">
-          <button class="editor-btn" style="color:var(--text-muted);"><i class="fa-solid fa-bars"></i></button>
-          <div class="sheet-pill" onclick="openSheetManagerModal()">
-            <span id="active-sheet-name">Sheet1</span>
-            <i class="fa-solid fa-caret-down" style="font-size: 10px;"></i>
-          </div>
-        </div>
-        <!-- Functioning '+' button to add Sheet2, Sheet3, etc. -->
-        <button class="add-sheet-btn" onclick="addNewSheet()" title="Add sheet">
-          <i class="fa-solid fa-plus"></i>
-        </button>
-      </div>
+      <!-- Clear Cell format button -->
+      <button onclick="clearCellFormat()" class="px-2 py-1 rounded hover:bg-sheetDark-700 text-[#8e918f] hover:text-white" title="Clear Formatting">
+        Reset format
+      </button>
     </div>
 
-    <!-- ACTION MENU OVERLAY (Rename / Delete) - NO LONGER CUT OFF -->
-    <div class="action-sheet-overlay" id="action-sheet-overlay" onclick="closeActionSheet()">
-      <div class="action-sheet" id="action-sheet" onclick="event.stopPropagation()">
-        <div class="action-sheet-title" id="action-sheet-filename">File Title</div>
-        <button class="action-item" onclick="onMenuRenameClick()">
-          <i class="fa-regular fa-pen-to-square"></i>
-          <span>Rename</span>
-        </button>
-        <button class="action-item danger" onclick="onMenuDeleteClick()">
-          <i class="fa-regular fa-trash-can"></i>
-          <span>Delete</span>
-        </button>
-      </div>
+    <!-- Spreadsheet Main Grid Area -->
+    <div id="gridScrollContainer" class="flex-1 overflow-auto bg-sheetDark-900 relative">
+      <table id="sheetTable" class="grid-table w-full text-xs text-[#e3e3e3]">
+        <!-- Table generated in JS -->
+      </table>
     </div>
 
-    <!-- SHEET MANAGER MODAL (Switch between Sheet1, Sheet2, etc.) -->
-    <div class="action-sheet-overlay" id="sheet-selector-overlay" onclick="closeSheetManagerModal()">
-      <div class="action-sheet" id="sheet-selector-sheet" onclick="event.stopPropagation()">
-        <div class="action-sheet-title">Sheets in this document</div>
-        <div class="sheet-list-container" id="sheets-list">
-          <!-- Dynamically populated sheets -->
+    <!-- Bottom Sheet Tabs Bar (as seen in Image 4) -->
+    <footer class="bg-sheetDark-800 border-t border-sheetDark-700 px-3 py-1.5 flex items-center justify-between z-20">
+      <div class="flex items-center gap-2 overflow-x-auto max-w-[80vw]">
+        <!-- Sheet Menu / List -->
+        <button onclick="showSheetsListModal()" class="p-1.5 rounded hover:bg-sheetDark-700 text-[#c4c7c5]" title="All sheets">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+
+        <!-- Dynamic Sheet Tabs (Pill style matching Image 4) -->
+        <div id="sheetTabsContainer" class="flex items-center gap-1">
+          <!-- Injected by JavaScript -->
         </div>
-        <button class="action-item" onclick="addNewSheet(); closeSheetManagerModal();" style="margin-top: 8px;">
-          <i class="fa-solid fa-plus" style="color: var(--accent-teal);"></i>
-          <span>Add new sheet</span>
+
+        <!-- Add Sheet Button (+) -->
+        <button onclick="addNewSheetTab()" class="p-1.5 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Add sheet">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
         </button>
       </div>
-    </div>
 
-    <!-- RENAME DIALOG -->
-    <div class="dialog-overlay" id="rename-dialog" onclick="closeRenameModal()">
-      <div class="dialog-box" onclick="event.stopPropagation()">
-        <h4>Rename document</h4>
-        <input type="text" id="rename-input" placeholder="Enter spreadsheet title">
-        <div class="dialog-actions">
-          <button class="dialog-btn cancel" onclick="closeRenameModal()">Cancel</button>
-          <button class="dialog-btn confirm" onclick="confirmRename()">OK</button>
-        </div>
+      <!-- Quick Summary Aggregates (Desktop feature) -->
+      <div id="gridQuickStats" class="hidden md:flex items-center gap-4 text-xs font-mono text-[#9aa0a6] px-3">
+        <span>SUM: <b id="statSum" class="text-white">0</b></span>
+        <span>COUNT: <b id="statCount" class="text-white">0</b></span>
       </div>
-    </div>
-
+    </footer>
   </div>
 
+
+  <!-- ========================================== -->
+  <!-- MODALS & DIALOGS                           -->
+  <!-- ========================================== -->
+
+  <!-- Generic Rename Modal (Available from Dashboard & Editor) -->
+  <div id="renameModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-sheetDark-800 border border-sheetDark-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <h3 class="text-lg font-medium text-white mb-2">Rename spreadsheet</h3>
+      <p class="text-xs text-[#8e918f] mb-4">Please enter a new name for the file:</p>
+      <input type="text" id="renameModalInput" class="w-full bg-sheetDark-900 border border-sheetDark-600 rounded-lg px-3 py-2 text-sm text-white focus:border-accentCyan outline-none mb-6">
+      <div class="flex justify-end gap-3">
+        <button onclick="closeRenameModal()" class="px-4 py-2 text-sm font-medium text-[#8e918f] hover:text-white rounded-lg">Cancel</button>
+        <button onclick="confirmRename()" class="px-4 py-2 text-sm font-medium bg-accentCyan text-accentCyan-text hover:bg-[#8ee0f0] rounded-lg font-semibold">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-sheetDark-800 border border-sheetDark-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <div class="w-12 h-12 rounded-full bg-red-950/60 border border-red-800/50 text-red-400 flex items-center justify-center mb-4">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      </div>
+      <h3 class="text-lg font-medium text-white mb-1">Delete spreadsheet?</h3>
+      <p class="text-xs text-[#8e918f] mb-6">"<span id="deleteFileName" class="text-white font-medium"></span>" will be deleted permanently from your device storage.</p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeDeleteModal()" class="px-4 py-2 text-sm font-medium text-[#8e918f] hover:text-white rounded-lg">Cancel</button>
+        <button onclick="confirmDelete()" class="px-4 py-2 text-sm font-medium bg-red-500 hover:bg-red-600 text-white rounded-lg font-semibold">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Context Menu (Rename / Delete tab) -->
+  <div id="tabContextMenu" class="fixed bg-sheetDark-800 border border-sheetDark-700 rounded-xl shadow-2xl py-2 hidden z-50 w-44">
+    <button onclick="renameActiveSheetTab()" class="w-full text-left px-4 py-2 text-sm text-[#e3e3e3] hover:bg-sheetDark-700 flex items-center gap-2">
+      <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+      Rename sheet
+    </button>
+    <button onclick="deleteActiveSheetTab()" class="w-full text-left px-4 py-2 text-sm text-red-400 hover:bg-sheetDark-700 flex items-center gap-2">
+      <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+      Delete sheet
+    </button>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- JAVASCRIPT LOGIC                           -->
+  <!-- ========================================== -->
   <script>
-    // --- Application State & Multi-Sheet Architecture ---
-    const STORAGE_KEY = 'google_sheets_app_files';
-    const COLS = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
-    const ROWS_COUNT = 45;
+    /* ----------------------------------------------------
+       State & Storage Architecture
+    ----------------------------------------------------- */
+    const STORAGE_KEY = 'google_sheets_clone_storage_v1';
+    const ROWS_COUNT = 50;
+    const COLS_COUNT = 20; // A to T
 
     let files = [];
-    let activeFileId = null;
-    let selectedCell = 'A1';
-    let renameTargetId = null;
-    let menuTargetFileId = null;
+    let activeFile = null;
+    let activeSheetIndex = 0;
+    let selectedCell = { r: 1, c: 1 }; // 1-based (A1)
+    let isEditingCell = false;
+    let viewMode = 'grid'; // 'grid' | 'list'
+    let sortDirection = 'desc'; // 'desc' | 'asc'
+    let targetFileIdForAction = null;
+
+    // Undo / Redo stacks
     let undoStack = [];
     let redoStack = [];
 
-    // Dynamically adjust viewport height to eliminate mobile browser bar cutoff
-    function updateAppHeight() {
-      const doc = document.documentElement;
-      doc.style.setProperty('--app-height', `${window.innerHeight}px`);
-    }
+    /* Initial sample seed data (so user sees realistic Google Sheets behavior right away) */
+    function initSeedData() {
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        try {
+          files = JSON.parse(stored);
+          return;
+        } catch (e) {
+          console.error("Failed to parse storage", e);
+        }
+      }
 
-    function init() {
-      updateAppHeight();
-      window.addEventListener('resize', updateAppHeight);
-      window.addEventListener('orientationchange', updateAppHeight);
-
-      loadFilesFromStorage();
-      renderHomeFiles();
-      buildGrid();
-      setupEvents();
-    }
-
-    function loadFilesFromStorage() {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        try { 
-          files = JSON.parse(raw);
-          // Migration: Ensure all files have sheets object
-          files.forEach(f => {
-            if (!f.sheets) {
-              f.sheets = { 'Sheet1': f.data || {} };
-              f.activeSheet = 'Sheet1';
+      // Default sample file inspired by budget/spreadsheet usage
+      files = [
+        {
+          id: 'file_' + Date.now(),
+          title: 'Monthly Budget Plan',
+          createdAt: Date.now() - 3600000,
+          updatedAt: Date.now() - 1200000,
+          sheets: [
+            {
+              id: 'sheet_1',
+              name: 'Sheet1',
+              cells: {
+                'A1': { raw: 'Category', style: { bold: true, bgColor: '#1f2b30' } },
+                'B1': { raw: 'Planned ($)', style: { bold: true, bgColor: '#1f2b30' } },
+                'C1': { raw: 'Actual ($)', style: { bold: true, bgColor: '#1f2b30' } },
+                'A2': { raw: 'Housing' },
+                'B2': { raw: '1200' },
+                'C2': { raw: '1200' },
+                'A3': { raw: 'Groceries' },
+                'B3': { raw: '450' },
+                'C3': { raw: '480' },
+                'A4': { raw: 'Utilities' },
+                'B4': { raw: '180' },
+                'C4': { raw: '165' },
+                'A5': { raw: 'Total' },
+                'B5': { raw: '=SUM(B2:B4)', style: { bold: true } },
+                'C5': { raw: '=SUM(C2:C4)', style: { bold: true } }
+              }
             }
-          });
-        } catch (e) { files = []; }
-      } else {
-        files = [];
+          ]
+        }
+      ];
+      saveToStorage();
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
+      const status = document.getElementById('saveStatus');
+      if (status) {
+        status.innerText = "All changes saved";
       }
     }
 
-    function saveFilesToStorage() {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(files));
-    }
+    /* ----------------------------------------------------
+       Dashboard UI Logic
+    ----------------------------------------------------- */
+    function renderDashboard() {
+      const container = document.getElementById('filesContainer');
+      const searchQuery = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+      
+      let filtered = files.filter(f => f.title.toLowerCase().includes(searchQuery));
+      filtered.sort((a, b) => sortDirection === 'desc' ? b.updatedAt - a.updatedAt : a.updatedAt - b.updatedAt);
 
-    // --- Home Screen Logic ---
-    function renderHomeFiles() {
-      const container = document.getElementById('home-content');
-      const filter = document.getElementById('search-input').value.toLowerCase();
-      const filtered = files.filter(f => f.title.toLowerCase().includes(filter));
-
+      // If empty: Render the EXACT empty illustration matching Image 1!
       if (filtered.length === 0) {
         container.innerHTML = `
-          <div class="empty-state">
-            <svg viewBox="0 0 200 170" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="35" y="45" width="60" height="75" rx="8" fill="#58a6ff" fill-opacity="0.3"/>
-              <rect x="45" y="55" width="25" height="4" rx="2" fill="#58a6ff"/>
-              <rect x="45" y="65" width="40" height="4" rx="2" fill="#58a6ff"/>
-              <rect x="45" y="75" width="30" height="4" rx="2" fill="#58a6ff"/>
-              <rect x="105" y="55" width="60" height="75" rx="8" fill="#0f9d58" fill-opacity="0.3"/>
-              <rect x="115" y="65" width="40" height="30" rx="3" stroke="#0f9d58" stroke-width="3"/>
-              <path d="M135 65v30 M115 80h40" stroke="#0f9d58" stroke-width="3"/>
-              <circle cx="100" cy="90" r="34" fill="#f4a261"/>
-              <rect x="68" y="85" width="64" height="75" rx="6" fill="#fff"/>
-              <circle cx="100" cy="115" r="16" fill="#f9c74f"/>
-              <path d="M94 115l4 4 8-8" stroke="#101317" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            <h3>No recent files</h3>
-            <p>Files you recently opened or edited will appear here</p>
+          <div class="h-full flex flex-col items-center justify-center text-center p-6 mt-4">
+            <!-- Modern Google Sheets Character Illustration (from Screenshot 1) -->
+            <div class="w-64 h-64 sm:w-72 sm:h-72 relative flex items-center justify-center mb-6">
+              <svg viewBox="0 0 300 300" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Background ambient circle -->
+                <circle cx="150" cy="150" r="110" fill="#1b1d20" />
+                <path d="M120 70 C140 50, 160 50, 180 70" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
+                <!-- Blue doc card behind -->
+                <rect x="70" y="85" width="48" height="60" rx="6" fill="#1e3a47" stroke="#78d9ec" stroke-width="1.5" />
+                <line x1="78" y1="98" x2="98" y2="98" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
+                <line x1="78" y1="108" x2="108" y2="108" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
+                <!-- Green spreadsheet card behind -->
+                <rect x="180" y="95" width="48" height="60" rx="6" fill="#123d24" stroke="#0f9d58" stroke-width="1.5" />
+                <rect x="187" y="104" width="34" height="20" rx="2" fill="#0f9d58" fill-opacity="0.2" stroke="#0f9d58" stroke-width="1" />
+                <line x1="204" y1="104" x2="204" y2="124" stroke="#0f9d58" stroke-width="1"/>
+                <line x1="187" y1="114" x2="221" y2="114" stroke="#0f9d58" stroke-width="1"/>
+                <!-- Person avatar holding white sheet -->
+                <path d="M135 110 C135 90, 190 90, 185 130 C185 155, 175 160, 150 160 C135 160, 135 135, 135 110 Z" fill="#9e4c34"/>
+                <circle cx="150" cy="120" r="18" fill="#e09f7a"/>
+                <!-- White sheet in hand with gold checkmark -->
+                <rect x="122" y="130" width="56" height="70" rx="8" fill="#ffffff" filter="drop-shadow(0px 8px 12px rgba(0,0,0,0.5))"/>
+                <circle cx="150" cy="162" r="14" fill="#fde293"/>
+                <path d="M144 162 L148 166 L156 158" stroke="#b06000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <!-- Arms holding sheet -->
+                <path d="M100 170 Q122 140 135 145" stroke="#e09f7a" stroke-width="9" stroke-linecap="round"/>
+                <path d="M200 170 Q178 140 165 145" stroke="#e09f7a" stroke-width="9" stroke-linecap="round"/>
+              </svg>
+            </div>
+            
+            <h2 class="text-xl sm:text-2xl font-normal text-white mb-2">No recent files</h2>
+            <p class="text-sm text-[#8e918f] max-w-sm mb-6">See all files you've recently edited or opened</p>
+            <button onclick="createNewSpreadsheet()" class="px-5 py-2.5 rounded-full bg-accentCyan text-accentCyan-text font-medium text-sm hover:bg-[#8ee0f0] transition-transform active:scale-95">
+              Create spreadsheet
+            </button>
           </div>
         `;
         return;
       }
 
-      // Always 2 cards per row on mobile!
-      let html = '<div class="file-grid">';
-      filtered.forEach(file => {
-        html += `
-          <div class="file-card" onclick="openSpreadsheet('${file.id}')">
-            <div class="file-card-header">
-              <div class="sheets-icon-sm"><i class="fa-solid fa-table"></i></div>
-              <div class="file-title">${escapeHtml(file.title)}</div>
-              <button class="file-menu-btn" onclick="openActionMenu(event, '${file.id}')" title="Options">
-                <i class="fa-solid fa-ellipsis-vertical"></i>
-              </button>
-            </div>
-            <div class="file-preview">
-              <div class="preview-center-icon">
-                <i class="fa-solid fa-table"></i>
+      // Render Files Grid or List matching Image 2
+      if (viewMode === 'grid') {
+        container.innerHTML = `
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            ${filtered.map(f => `
+              <div onclick="openSpreadsheet('${f.id}')" class="group bg-sheetDark-800 hover:bg-sheetDark-700 border border-sheetDark-700 hover:border-sheetDark-600 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition-all hover:shadow-xl relative aspect-[4/4]">
+                <!-- Top Header: Green Sheets Logo + Title + 3-dot Menu -->
+                <div class="flex items-start justify-between gap-1">
+                  <div class="flex items-start gap-2.5 min-w-0">
+                    <!-- Google Sheets Green Icon -->
+                    <div class="w-6 h-6 rounded bg-sheetsGreen/20 text-sheetsGreen flex items-center justify-center shrink-0 mt-0.5">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H5v-2h7v2zm0-4H5v-2h7v2zm0-4H5V7h7v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z"/>
+                      </svg>
+                    </div>
+                    <span class="text-sm font-medium text-[#e3e3e3] line-clamp-2 leading-snug group-hover:text-white" title="${escapeHtml(f.title)}">
+                      ${escapeHtml(f.title)}
+                    </span>
+                  </div>
+                  
+                  <!-- 3 dots options menu -->
+                  <button onclick="event.stopPropagation(); openFileMenu(event, '${f.id}')" class="p-1.5 -mr-1 rounded-full text-[#8e918f] hover:text-white hover:bg-sheetDark-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                  </button>
+                </div>
+
+                <!-- Preview Box Graphic (matching screenshot 2) -->
+                <div class="w-full flex-1 my-3 bg-[#131517] rounded-xl flex items-center justify-center border border-sheetDark-600/40 relative overflow-hidden">
+                  <div class="w-12 h-12 rounded-xl bg-[#0f9d58]/20 border border-[#0f9d58]/40 flex items-center justify-center text-sheetsGreen">
+                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/>
+                    </svg>
+                  </div>
+                  <!-- Offline / Sync icon indicator on preview -->
+                  <div class="absolute bottom-2 right-2 text-[#8e918f]">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  </div>
+                </div>
+
+                <!-- Date Info -->
+                <div class="text-[11px] text-[#8e918f]">
+                  Opened ${formatDate(f.updatedAt)}
+                </div>
               </div>
-              <div class="preview-badge"><i class="fa-regular fa-clock"></i></div>
-            </div>
+            `).join('')}
           </div>
         `;
-      });
-      html += '</div>';
-      container.innerHTML = html;
+      } else {
+        // List View
+        container.innerHTML = `
+          <div class="flex flex-col bg-sheetDark-800 rounded-2xl border border-sheetDark-700 divide-y divide-sheetDark-700 overflow-hidden">
+            ${filtered.map(f => `
+              <div onclick="openSpreadsheet('${f.id}')" class="flex items-center justify-between p-3.5 hover:bg-sheetDark-700/60 cursor-pointer transition-colors">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="w-8 h-8 rounded-lg bg-sheetsGreen/20 text-sheetsGreen flex items-center justify-center shrink-0">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H5v-2h7v2zm0-4H5v-2h7v2zm0-4H5V7h7v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z"/></svg>
+                  </div>
+                  <div class="flex flex-col min-w-0">
+                    <span class="text-sm font-medium text-white truncate">${escapeHtml(f.title)}</span>
+                    <span class="text-xs text-[#8e918f]">Opened ${formatDate(f.updatedAt)}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="event.stopPropagation(); openFileMenu(event, '${f.id}')" class="p-2 rounded-full text-[#8e918f] hover:text-white hover:bg-sheetDark-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
+                  </button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
     }
 
+    function setViewMode(mode) {
+      viewMode = mode;
+      document.getElementById('viewGridBtn').className = mode === 'grid' ? 'p-1.5 rounded bg-sheetDark-700 text-white' : 'p-1.5 rounded hover:bg-sheetDark-700 text-[#8e918f]';
+      document.getElementById('viewListBtn').className = mode === 'list' ? 'p-1.5 rounded bg-sheetDark-700 text-white' : 'p-1.5 rounded hover:bg-sheetDark-700 text-[#8e918f]';
+      renderDashboard();
+    }
+
+    function toggleSort() {
+      sortDirection = sortDirection === 'desc' ? 'asc' : 'desc';
+      document.getElementById('sortLabel').innerText = sortDirection === 'desc' ? 'Date opened by me' : 'Oldest first';
+      renderDashboard();
+    }
+
+    /* ----------------------------------------------------
+       File Creation, Renaming & Deleting
+    ----------------------------------------------------- */
     function createNewSpreadsheet() {
       const newFile = {
-        id: 'sheet_' + Date.now(),
+        id: 'file_' + Date.now(),
         title: 'Untitled spreadsheet',
-        updatedAt: new Date().toISOString(),
-        activeSheet: 'Sheet1',
-        sheets: {
-          'Sheet1': {}
-        }
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
+        sheets: [
+          {
+            id: 'sheet_' + Date.now(),
+            name: 'Sheet1',
+            cells: {}
+          }
+        ]
       };
       files.unshift(newFile);
-      saveFilesToStorage();
+      saveToStorage();
       openSpreadsheet(newFile.id);
     }
 
     function openSpreadsheet(id) {
-      activeFileId = id;
-      const file = files.find(f => f.id === id);
-      if (!file) return;
+      activeFile = files.find(f => f.id === id);
+      if (!activeFile) return;
 
-      if (!file.sheets) file.sheets = { 'Sheet1': {} };
-      if (!file.activeSheet || !file.sheets[file.activeSheet]) {
-        file.activeSheet = Object.keys(file.sheets)[0] || 'Sheet1';
-      }
+      activeFile.updatedAt = Date.now();
+      saveToStorage();
 
-      document.getElementById('editor-title').innerText = file.title;
-      document.getElementById('active-sheet-name').innerText = file.activeSheet;
-      document.getElementById('home-screen').classList.remove('active');
-      document.getElementById('editor-screen').classList.add('active');
-
+      activeSheetIndex = 0;
+      selectedCell = { r: 1, c: 1 };
       undoStack = [];
       redoStack = [];
-      refreshGridValues();
-      selectCell('A1');
+
+      document.getElementById('dashboardView').classList.add('hidden');
+      document.getElementById('editorView').classList.remove('hidden');
+
+      document.getElementById('editorTitleInput').value = activeFile.title;
+
+      renderEditorGrid();
+      renderSheetTabs();
+      updateFormulaBarForSelectedCell();
     }
 
-    function exitToHome() {
-      document.getElementById('editor-screen').classList.remove('active');
-      document.getElementById('home-screen').classList.add('active');
-      renderHomeFiles();
+    function backToDashboard() {
+      saveToStorage();
+      document.getElementById('editorView').classList.add('hidden');
+      document.getElementById('dashboardView').classList.remove('hidden');
+      renderDashboard();
     }
 
-    // --- Multi-Sheet Management (Sheet1, Sheet2, etc.) ---
-    function addNewSheet() {
-      const file = files.find(f => f.id === activeFileId);
-      if (!file) return;
-
-      let counter = Object.keys(file.sheets).length + 1;
-      let newSheetName = `Sheet${counter}`;
-      while (file.sheets[newSheetName]) {
-        counter++;
-        newSheetName = `Sheet${counter}`;
-      }
-
-      file.sheets[newSheetName] = {};
-      file.activeSheet = newSheetName;
-      saveFilesToStorage();
-
-      document.getElementById('active-sheet-name').innerText = newSheetName;
-      undoStack = [];
-      redoStack = [];
-      refreshGridValues();
-      selectCell('A1');
-    }
-
-    function switchSheet(sheetName) {
-      const file = files.find(f => f.id === activeFileId);
-      if (!file || !file.sheets[sheetName]) return;
-
-      file.activeSheet = sheetName;
-      saveFilesToStorage();
-
-      document.getElementById('active-sheet-name').innerText = sheetName;
-      undoStack = [];
-      redoStack = [];
-      refreshGridValues();
-      selectCell('A1');
-      closeSheetManagerModal();
-    }
-
-    function openSheetManagerModal() {
-      const file = files.find(f => f.id === activeFileId);
-      if (!file) return;
-
-      const listContainer = document.getElementById('sheets-list');
-      listContainer.innerHTML = '';
-
-      Object.keys(file.sheets).forEach(name => {
-        const isActive = name === file.activeSheet;
-        const btn = document.createElement('button');
-        btn.className = `sheet-option-item ${isActive ? 'active' : ''}`;
-        btn.innerHTML = `
-          <span>${name}</span>
-          ${isActive ? '<i class="fa-solid fa-check"></i>' : ''}
-        `;
-        btn.onclick = () => switchSheet(name);
-        listContainer.appendChild(btn);
-      });
-
-      const overlay = document.getElementById('sheet-selector-overlay');
-      const sheet = document.getElementById('sheet-selector-sheet');
-      overlay.style.display = 'flex';
-      setTimeout(() => sheet.classList.add('show'), 10);
-    }
-
-    function closeSheetManagerModal() {
-      const sheet = document.getElementById('sheet-selector-sheet');
-      sheet.classList.remove('show');
-      setTimeout(() => {
-        document.getElementById('sheet-selector-overlay').style.display = 'none';
-      }, 200);
-    }
-
-    // --- Action Menu Logic ---
-    function openActionMenu(e, fileId) {
-      e.stopPropagation();
-      menuTargetFileId = fileId;
-      const file = files.find(f => f.id === fileId);
-      if (!file) return;
-
-      document.getElementById('action-sheet-filename').innerText = file.title;
-      const overlay = document.getElementById('action-sheet-overlay');
-      const sheet = document.getElementById('action-sheet');
-      overlay.style.display = 'flex';
-      setTimeout(() => sheet.classList.add('show'), 10);
-    }
-
-    function closeActionSheet() {
-      const sheet = document.getElementById('action-sheet');
-      sheet.classList.remove('show');
-      setTimeout(() => {
-        document.getElementById('action-sheet-overlay').style.display = 'none';
-      }, 200);
-    }
-
-    function onMenuRenameClick() {
-      const targetId = menuTargetFileId;
-      closeActionSheet();
-      openRenameModal(targetId);
-    }
-
-    function onMenuDeleteClick() {
-      const targetId = menuTargetFileId;
-      closeActionSheet();
-      if (confirm("Are you sure you want to delete this spreadsheet?")) {
-        deleteSpreadsheet(targetId);
-      }
-    }
-
-    function deleteSpreadsheet(fileId) {
-      files = files.filter(f => f.id !== fileId);
-      saveFilesToStorage();
-      if (activeFileId === fileId) {
-        exitToHome();
-      } else {
-        renderHomeFiles();
-      }
-    }
-
-    // --- Rename Dialog Logic ---
+    // Modal Renaming Logic
     function openRenameModal(fileId) {
-      if (!fileId) return;
+      targetFileIdForAction = fileId;
       const file = files.find(f => f.id === fileId);
       if (!file) return;
 
-      renameTargetId = fileId;
-      const input = document.getElementById('rename-input');
+      const input = document.getElementById('renameModalInput');
       input.value = file.title;
-      document.getElementById('rename-dialog').style.display = 'flex';
+      document.getElementById('renameModal').classList.remove('hidden');
+      document.getElementById('renameModal').classList.add('flex');
       setTimeout(() => {
         input.focus();
         input.select();
@@ -1173,307 +659,728 @@
     }
 
     function closeRenameModal() {
-      document.getElementById('rename-dialog').style.display = 'none';
-      renameTargetId = null;
+      document.getElementById('renameModal').classList.add('hidden');
+      document.getElementById('renameModal').classList.remove('flex');
+      targetFileIdForAction = null;
     }
 
     function confirmRename() {
-      const input = document.getElementById('rename-input');
-      const newTitle = input.value.trim();
+      const input = document.getElementById('renameModalInput');
+      const newName = input.value.trim() || 'Untitled spreadsheet';
+      
+      const file = files.find(f => f.id === targetFileIdForAction);
+      if (file) {
+        file.title = newName;
+        file.updatedAt = Date.now();
+        saveToStorage();
 
-      if (newTitle && renameTargetId) {
-        const file = files.find(f => f.id === renameTargetId);
-        if (file) {
-          file.title = newTitle;
-          file.updatedAt = new Date().toISOString();
-          saveFilesToStorage();
-
-          if (activeFileId === file.id) {
-            document.getElementById('editor-title').innerText = newTitle;
-          }
-          renderHomeFiles();
+        if (activeFile && activeFile.id === file.id) {
+          document.getElementById('editorTitleInput').value = newName;
         }
+        renderDashboard();
       }
       closeRenameModal();
     }
 
-    // --- Grid Construction & Highlighted Headers ---
-    function buildGrid() {
-      const table = document.getElementById('sheets-table');
-      table.innerHTML = '';
-
-      const theadRow = document.createElement('tr');
-      const corner = document.createElement('th');
-      corner.className = 'corner-header';
-      theadRow.appendChild(corner);
-
-      COLS.forEach(col => {
-        const th = document.createElement('th');
-        th.className = 'col-header';
-        th.id = `col-header-${col}`;
-        th.innerText = col;
-        theadRow.appendChild(th);
-      });
-      table.appendChild(theadRow);
-
-      for (let r = 1; r <= ROWS_COUNT; r++) {
-        const tr = document.createElement('tr');
-        const rowHeader = document.createElement('th');
-        rowHeader.className = 'row-header';
-        rowHeader.id = `row-header-${r}`;
-        rowHeader.innerText = r;
-        tr.appendChild(rowHeader);
-
-        COLS.forEach(col => {
-          const cellId = `${col}${r}`;
-          const td = document.createElement('td');
-          td.className = 'cell';
-          td.id = `cell-${cellId}`;
-          td.dataset.cellId = cellId;
-
-          td.addEventListener('click', () => selectCell(cellId));
-          td.addEventListener('dblclick', () => {
-            selectCell(cellId);
-            document.getElementById('formula-input').focus();
-          });
-
-          tr.appendChild(td);
-        });
-        table.appendChild(tr);
-      }
+    function handleHeaderTitleChange(val) {
+      if (!activeFile) return;
+      activeFile.title = val.trim() || 'Untitled spreadsheet';
+      activeFile.updatedAt = Date.now();
+      saveToStorage();
     }
 
-    function selectCell(cellId) {
-      // Remove previous cell and header highlights
-      if (selectedCell) {
-        const prev = document.getElementById(`cell-${selectedCell}`);
-        if (prev) prev.classList.remove('selected');
-        
-        const prevCol = selectedCell.charAt(0);
-        const prevRow = selectedCell.slice(1);
-        const prevColH = document.getElementById(`col-header-${prevCol}`);
-        const prevRowH = document.getElementById(`row-header-${prevRow}`);
-        if (prevColH) prevColH.classList.remove('active-header');
-        if (prevRowH) prevRowH.classList.remove('active-header');
-      }
-
-      selectedCell = cellId;
-      const el = document.getElementById(`cell-${cellId}`);
-      if (el) el.classList.add('selected');
-
-      // Add Teal Highlight to Column & Row headers (Screenshot 3 style)
-      const col = cellId.charAt(0);
-      const row = cellId.slice(1);
-      const colH = document.getElementById(`col-header-${col}`);
-      const rowH = document.getElementById(`row-header-${row}`);
-      if (colH) colH.classList.add('active-header');
-      if (rowH) rowH.classList.add('active-header');
-
-      document.getElementById('selected-cell-badge').innerText = cellId;
-
-      const file = files.find(f => f.id === activeFileId);
-      const sheetData = file && file.sheets && file.sheets[file.activeSheet];
-      const cellData = sheetData && sheetData[cellId];
-      const formulaInput = document.getElementById('formula-input');
-      formulaInput.value = cellData ? cellData.raw : '';
-    }
-
-    function setupEvents() {
-      const formulaInput = document.getElementById('formula-input');
-      
-      formulaInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          saveCurrentCellValue(formulaInput.value);
-          const col = selectedCell.charAt(0);
-          const row = parseInt(selectedCell.slice(1));
-          if (row < ROWS_COUNT) {
-            selectCell(`${col}${row + 1}`);
-          }
-        }
-      });
-
-      formulaInput.addEventListener('input', () => {
-        saveCurrentCellValue(formulaInput.value, false);
-      });
-
-      const renameInput = document.getElementById('rename-input');
-      renameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          confirmRename();
-        } else if (e.key === 'Escape') {
-          closeRenameModal();
-        }
-      });
-    }
-
-    function saveCurrentCellValue(value, pushUndo = true) {
-      const file = files.find(f => f.id === activeFileId);
+    // Modal Deleting Logic
+    function openDeleteModal(fileId) {
+      targetFileIdForAction = fileId;
+      const file = files.find(f => f.id === fileId);
       if (!file) return;
 
-      if (!file.sheets) file.sheets = {};
-      if (!file.sheets[file.activeSheet]) file.sheets[file.activeSheet] = {};
-
-      const currentSheetData = file.sheets[file.activeSheet];
-      const prevData = currentSheetData[selectedCell] ? currentSheetData[selectedCell].raw : '';
-
-      if (pushUndo && prevData !== value) {
-        undoStack.push({ cellId: selectedCell, oldVal: prevData, newVal: value, sheet: file.activeSheet });
-        redoStack = [];
-      }
-
-      if (value === '') {
-        delete currentSheetData[selectedCell];
-      } else {
-        currentSheetData[selectedCell] = {
-          raw: value,
-          val: evaluateFormula(value, currentSheetData)
-        };
-      }
-
-      saveFilesToStorage();
-      refreshGridValues();
-
-      const saveStatus = document.getElementById('save-status');
-      saveStatus.innerText = "Saving...";
-      setTimeout(() => { saveStatus.innerText = "Saved to storage"; }, 400);
+      document.getElementById('deleteFileName').innerText = file.title;
+      document.getElementById('deleteModal').classList.remove('hidden');
+      document.getElementById('deleteModal').classList.add('flex');
     }
 
-    // Formula Evaluator
-    function evaluateFormula(raw, data) {
-      if (typeof raw !== 'string' || !raw.startsWith('=')) {
-        return raw;
+    function closeDeleteModal() {
+      document.getElementById('deleteModal').classList.add('hidden');
+      document.getElementById('deleteModal').classList.remove('flex');
+      targetFileIdForAction = null;
+    }
+
+    function confirmDelete() {
+      if (!targetFileIdForAction) return;
+      
+      const fileId = targetFileIdForAction;
+      files = files.filter(f => f.id !== fileId);
+      saveToStorage();
+      closeDeleteModal();
+
+      if (activeFile && activeFile.id === fileId) {
+        backToDashboard();
+      } else {
+        renderDashboard();
+      }
+    }
+
+    function deleteActiveFile() {
+      if (activeFile) {
+        openDeleteModal(activeFile.id);
+      }
+    }
+
+    // Context Popups
+    function openFileMenu(e, fileId) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      // Remove any existing dynamic menu
+      const existing = document.getElementById('dynamicFileMenu');
+      if (existing) existing.remove();
+
+      const menu = document.createElement('div');
+      menu.id = 'dynamicFileMenu';
+      menu.className = 'fixed bg-sheetDark-800 border border-sheetDark-700 rounded-xl shadow-2xl py-2 z-50 w-48 text-sm';
+      menu.style.top = `${rect.bottom + 4}px`;
+      menu.style.left = `${Math.min(window.innerWidth - 200, rect.left)}px`;
+
+      menu.innerHTML = `
+        <button onclick="openRenameModal('${fileId}'); document.getElementById('dynamicFileMenu').remove();" class="w-full text-left px-4 py-2 hover:bg-sheetDark-700 flex items-center gap-2.5 text-[#e3e3e3]">
+          <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          Rename
+        </button>
+        <button onclick="duplicateFile('${fileId}'); document.getElementById('dynamicFileMenu').remove();" class="w-full text-left px-4 py-2 hover:bg-sheetDark-700 flex items-center gap-2.5 text-[#e3e3e3]">
+          <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          Make a copy
+        </button>
+        <div class="h-[1px] bg-sheetDark-700 my-1"></div>
+        <button onclick="openDeleteModal('${fileId}'); document.getElementById('dynamicFileMenu').remove();" class="w-full text-left px-4 py-2 hover:bg-sheetDark-700 flex items-center gap-2.5 text-red-400">
+          <svg class="w-4 h-4 text-red-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          Delete
+        </button>
+      `;
+
+      document.body.appendChild(menu);
+
+      const closeHandler = (ev) => {
+        if (!menu.contains(ev.target)) {
+          menu.remove();
+          document.removeEventListener('click', closeHandler);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', closeHandler), 10);
+    }
+
+    function duplicateFile(fileId) {
+      const file = files.find(f => f.id === fileId);
+      if (!file) return;
+
+      const copy = JSON.parse(JSON.stringify(file));
+      copy.id = 'file_' + Date.now();
+      copy.title = 'Copy of ' + file.title;
+      copy.createdAt = Date.now();
+      copy.updatedAt = Date.now();
+      files.unshift(copy);
+      saveToStorage();
+      renderDashboard();
+    }
+
+    /* ----------------------------------------------------
+       Spreadsheet Grid Engine & Formula Calculator
+    ----------------------------------------------------- */
+    function colNumberToName(n) {
+      let s = '';
+      while (n > 0) {
+        let m = (n - 1) % 26;
+        s = String.fromCharCode(65 + m) + s;
+        n = Math.floor((n - m) / 26);
+      }
+      return s;
+    }
+
+    function colNameToNumber(s) {
+      let n = 0;
+      for (let i = 0; i < s.length; i++) {
+        n = n * 26 + s.charCodeAt(i) - 64;
+      }
+      return n;
+    }
+
+    function getCellKey(r, c) {
+      return `${colNumberToName(c)}${r}`;
+    }
+
+    function getActiveSheet() {
+      if (!activeFile || !activeFile.sheets[activeSheetIndex]) return null;
+      return activeFile.sheets[activeSheetIndex];
+    }
+
+    function renderEditorGrid() {
+      const table = document.getElementById('sheetTable');
+      const sheet = getActiveSheet();
+      if (!sheet) return;
+
+      let html = '<thead><tr>';
+      // Corner header cell
+      html += '<th class="header-cell w-10 min-w-10 sticky top-0 left-0 z-30 text-center bg-[#181a1d]">#</th>';
+      
+      // Column headers: A, B, C...
+      for (let c = 1; c <= COLS_COUNT; c++) {
+        html += `<th class="header-cell w-28 min-w-28 py-1.5 text-center sticky top-0 z-20">${colNumberToName(c)}</th>`;
+      }
+      html += '</tr></thead><tbody>';
+
+      // Rows
+      for (let r = 1; r <= ROWS_COUNT; r++) {
+        html += '<tr>';
+        // Row Number header
+        html += `<td class="header-cell sticky left-0 z-10 text-center font-mono py-1">${r}</td>`;
+        
+        // Cells
+        for (let c = 1; c <= COLS_COUNT; c++) {
+          const key = getCellKey(r, c);
+          const cell = sheet.cells[key] || {};
+          const displayVal = evaluateCell(key, sheet);
+          const style = getCellStyleString(cell.style);
+
+          html += `
+            <td id="cell_${r}_${c}" 
+                onclick="selectCell(${r}, ${c})"
+                ondblclick="editCellInline(${r}, ${c})"
+                style="${style}"
+                class="grid-cell px-2 py-1.5 cursor-cell h-7 min-w-28">
+              ${escapeHtml(displayVal)}
+            </td>
+          `;
+        }
+        html += '</tr>';
+      }
+      html += '</tbody>';
+      table.innerHTML = html;
+
+      highlightActiveCell();
+    }
+
+    function getCellStyleString(style = {}) {
+      let css = '';
+      if (style.bold) css += 'font-weight: 700; ';
+      if (style.italic) css += 'font-style: italic; ';
+      if (style.strikethrough) css += 'text-decoration: line-through; ';
+      if (style.align) css += `text-align: ${style.align}; `;
+      if (style.color) css += `color: ${style.color}; `;
+      if (style.bgColor) css += `background-color: ${style.bgColor}; `;
+      return css;
+    }
+
+    /* ----------------------------------------------------
+       Formula Parser (=SUM, =AVERAGE, =COUNT, basic Math)
+    ----------------------------------------------------- */
+    function evaluateCell(key, sheet, visited = new Set()) {
+      const cell = sheet.cells[key];
+      if (!cell || cell.raw === undefined || cell.raw === null) return '';
+      const val = cell.raw.toString();
+
+      if (!val.startsWith('=')) {
+        return val;
       }
 
+      // Circular dependency guard
+      if (visited.has(key)) return '#REF!';
+      visited.add(key);
+
       try {
-        let formula = raw.substring(1).toUpperCase().trim();
+        const expression = val.slice(1).trim().toUpperCase();
 
-        if (formula.startsWith('SUM(') && formula.endsWith(')')) {
-          const range = formula.substring(4, formula.length - 1);
-          return sumRange(range, data);
+        // Handle Formulas: SUM(A1:A5)
+        if (expression.startsWith('SUM(') && expression.endsWith(')')) {
+          const range = expression.slice(4, -1);
+          const values = getRangeValues(range, sheet, visited);
+          return values.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
         }
 
-        if (formula.startsWith('AVERAGE(') && formula.endsWith(')')) {
-          const range = formula.substring(8, formula.length - 1);
-          return avgRange(range, data);
+        // AVERAGE(A1:A5)
+        if (expression.startsWith('AVERAGE(') && expression.endsWith(')')) {
+          const range = expression.slice(8, -1);
+          const values = getRangeValues(range, sheet, visited).map(v => parseFloat(v)).filter(v => !isNaN(v));
+          if (!values.length) return 0;
+          return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2).replace(/\.00$/, '');
         }
 
-        const parsed = formula.replace(/[A-Z][0-9]+/g, (match) => {
-          const cell = data[match];
-          if (!cell) return 0;
-          const num = parseFloat(cell.val);
+        // COUNT(A1:A5)
+        if (expression.startsWith('COUNT(') && expression.endsWith(')')) {
+          const range = expression.slice(6, -1);
+          const values = getRangeValues(range, sheet, visited).map(v => parseFloat(v)).filter(v => !isNaN(v));
+          return values.length;
+        }
+
+        // Replace Cell References e.g. A1 + B2
+        const sanitized = expression.replace(/([A-Z]+[0-9]+)/g, (match) => {
+          const resolved = evaluateCell(match, sheet, new Set(visited));
+          const num = parseFloat(resolved);
           return isNaN(num) ? 0 : num;
         });
 
-        return Function(`"use strict"; return (${parsed})`)();
-      } catch (err) {
+        // Basic arithmetic calculation safely
+        if (/^[\d\s+\-*/().]+$/.test(sanitized)) {
+          const result = Function(`'use strict'; return (${sanitized})`)();
+          return typeof result === 'number' ? (Math.round(result * 100) / 100) : result;
+        }
+
         return '#VALUE!';
+      } catch (err) {
+        return '#ERROR!';
       }
     }
 
-    function getRangeCells(range) {
-      const [start, end] = range.split(':');
-      if (!start || !end) return [];
+    function getRangeValues(rangeStr, sheet, visited) {
+      const parts = rangeStr.split(':');
+      if (parts.length !== 2) {
+        // Single cell
+        return [evaluateCell(rangeStr.trim(), sheet, visited)];
+      }
 
-      const startCol = start.charCodeAt(0);
-      const startRow = parseInt(start.slice(1));
-      const endCol = end.charCodeAt(0);
-      const endRow = parseInt(end.slice(1));
+      const match1 = parts[0].trim().match(/^([A-Z]+)([0-9]+)$/);
+      const match2 = parts[1].trim().match(/^([A-Z]+)([0-9]+)$/);
+      if (!match1 || !match2) return [];
 
-      const cells = [];
-      for (let c = Math.min(startCol, endCol); c <= Math.max(startCol, endCol); c++) {
-        for (let r = Math.min(startRow, endRow); r <= Math.max(startRow, endRow); r++) {
-          cells.push(`${String.fromCharCode(c)}${r}`);
+      const startCol = colNameToNumber(match1[1]);
+      const startRow = parseInt(match1[2], 10);
+      const endCol = colNameToNumber(match2[1]);
+      const endRow = parseInt(match2[2], 10);
+
+      const rMin = Math.min(startRow, endRow);
+      const rMax = Math.max(startRow, endRow);
+      const cMin = Math.min(startCol, endCol);
+      const cMax = Math.max(startCol, endCol);
+
+      const values = [];
+      for (let r = rMin; r <= rMax; r++) {
+        for (let c = cMin; c <= cMax; c++) {
+          const k = getCellKey(r, c);
+          values.push(evaluateCell(k, sheet, visited));
         }
       }
-      return cells;
+      return values;
     }
 
-    function sumRange(range, data) {
-      const cells = getRangeCells(range);
-      let sum = 0;
-      cells.forEach(cid => {
-        if (data[cid]) {
-          const n = parseFloat(data[cid].val);
-          if (!isNaN(n)) sum += n;
+    /* ----------------------------------------------------
+       Selection & Active Cell Editing
+    ----------------------------------------------------- */
+    function selectCell(r, c) {
+      if (isEditingCell) commitCellEdit();
+
+      selectedCell = { r, c };
+      highlightActiveCell();
+      updateFormulaBarForSelectedCell();
+      updateQuickStats();
+    }
+
+    function highlightActiveCell() {
+      document.querySelectorAll('.cell-selected').forEach(el => el.classList.remove('cell-selected'));
+      const td = document.getElementById(`cell_${selectedCell.r}_${selectedCell.c}`);
+      if (td) {
+        td.classList.add('cell-selected');
+      }
+      document.getElementById('activeCellAddress').innerText = getCellKey(selectedCell.r, selectedCell.c);
+    }
+
+    function updateFormulaBarForSelectedCell() {
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      const cell = sheet?.cells[key];
+      const formulaInput = document.getElementById('formulaInput');
+      formulaInput.value = cell?.raw || '';
+    }
+
+    function editCellInline(r, c) {
+      selectCell(r, c);
+      const td = document.getElementById(`cell_${r}_${c}`);
+      const sheet = getActiveSheet();
+      const key = getCellKey(r, c);
+      const rawVal = sheet.cells[key]?.raw || '';
+
+      isEditingCell = true;
+      td.innerHTML = `
+        <input id="inlineInput" type="text" class="w-full h-full bg-sheetDark-900 text-white outline-none border-none p-0 text-xs" value="${escapeHtml(rawVal)}">
+      `;
+      const input = document.getElementById('inlineInput');
+      input.focus();
+      input.select();
+
+      input.onkeydown = (e) => {
+        if (e.key === 'Enter') {
+          commitCellEdit(input.value);
+          selectCell(Math.min(ROWS_COUNT, r + 1), c);
+        } else if (e.key === 'Escape') {
+          isEditingCell = false;
+          renderEditorGrid();
+        } else if (e.key === 'Tab') {
+          e.preventDefault();
+          commitCellEdit(input.value);
+          selectCell(r, Math.min(COLS_COUNT, c + 1));
         }
-      });
-      return sum;
+      };
+
+      input.onblur = () => {
+        if (isEditingCell) {
+          commitCellEdit(input.value);
+        }
+      };
     }
 
-    function avgRange(range, data) {
-      const cells = getRangeCells(range);
-      let sum = 0, count = 0;
-      cells.forEach(cid => {
-        if (data[cid]) {
-          const n = parseFloat(data[cid].val);
-          if (!isNaN(n)) {
-            sum += n;
-            count++;
+    function handleFormulaInput(val) {
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      if (!sheet.cells[key]) sheet.cells[key] = {};
+      sheet.cells[key].raw = val;
+
+      // Realtime mirror in table cell
+      const td = document.getElementById(`cell_${selectedCell.r}_${selectedCell.c}`);
+      if (td && !isEditingCell) {
+        td.innerText = val.startsWith('=') ? evaluateCell(key, sheet) : val;
+      }
+    }
+
+    function handleFormulaKeydown(e) {
+      if (e.key === 'Enter') {
+        commitCellEdit();
+        selectCell(Math.min(ROWS_COUNT, selectedCell.r + 1), selectedCell.c);
+      }
+    }
+
+    function commitCellEdit(explicitVal) {
+      isEditingCell = false;
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      const formulaInput = document.getElementById('formulaInput');
+      const val = explicitVal !== undefined ? explicitVal : formulaInput.value;
+
+      if (!sheet.cells[key]) sheet.cells[key] = {};
+
+      // Push to Undo
+      pushUndoState();
+
+      sheet.cells[key].raw = val;
+      activeFile.updatedAt = Date.now();
+      saveToStorage();
+      renderEditorGrid();
+    }
+
+    /* ----------------------------------------------------
+       Formatting & Quick Tools
+    ----------------------------------------------------- */
+    function formatCell(type, value) {
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      if (!sheet.cells[key]) sheet.cells[key] = { raw: '' };
+      if (!sheet.cells[key].style) sheet.cells[key].style = {};
+
+      pushUndoState();
+
+      const st = sheet.cells[key].style;
+      if (type === 'bold') st.bold = !st.bold;
+      if (type === 'italic') st.italic = !st.italic;
+      if (type === 'strikethrough') st.strikethrough = !st.strikethrough;
+      if (type === 'align') st.align = value;
+      if (type === 'color') st.color = value;
+      if (type === 'bgColor') st.bgColor = value;
+
+      saveToStorage();
+      renderEditorGrid();
+    }
+
+    function clearCellFormat() {
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      if (sheet.cells[key]) {
+        pushUndoState();
+        delete sheet.cells[key].style;
+        saveToStorage();
+        renderEditorGrid();
+      }
+    }
+
+    function insertFormulaTemplate(fn) {
+      const formulaInput = document.getElementById('formulaInput');
+      formulaInput.value = `=${fn}(A1:A5)`;
+      handleFormulaInput(formulaInput.value);
+      formulaInput.focus();
+    }
+
+    function updateQuickStats() {
+      const sheet = getActiveSheet();
+      const key = getCellKey(selectedCell.r, selectedCell.c);
+      const val = evaluateCell(key, sheet);
+      const num = parseFloat(val);
+
+      const statSum = document.getElementById('statSum');
+      const statCount = document.getElementById('statCount');
+      if (!isNaN(num)) {
+        statSum.innerText = num;
+        statCount.innerText = "1";
+      } else if (val) {
+        statSum.innerText = "-";
+        statCount.innerText = "1";
+      } else {
+        statSum.innerText = "0";
+        statCount.innerText = "0";
+      }
+    }
+
+    /* ----------------------------------------------------
+       Undo / Redo Architecture
+    ----------------------------------------------------- */
+    function pushUndoState() {
+      if (!activeFile) return;
+      undoStack.push(JSON.stringify(activeFile));
+      if (undoStack.length > 30) undoStack.shift();
+      redoStack = []; // reset redo on action
+    }
+
+    function undo() {
+      if (!undoStack.length) return;
+      redoStack.push(JSON.stringify(activeFile));
+      const previous = JSON.parse(undoStack.pop());
+      Object.assign(activeFile, previous);
+      saveToStorage();
+      renderEditorGrid();
+      renderSheetTabs();
+    }
+
+    function redo() {
+      if (!redoStack.length) return;
+      undoStack.push(JSON.stringify(activeFile));
+      const next = JSON.parse(redoStack.pop());
+      Object.assign(activeFile, next);
+      saveToStorage();
+      renderEditorGrid();
+      renderSheetTabs();
+    }
+
+    /* ----------------------------------------------------
+       Sheets Management (Tabs at bottom - Image 4)
+    ----------------------------------------------------- */
+    function renderSheetTabs() {
+      const container = document.getElementById('sheetTabsContainer');
+      if (!activeFile) return;
+
+      container.innerHTML = activeFile.sheets.map((sheet, idx) => {
+        const isActive = idx === activeSheetIndex;
+        // Image 4 style active tab: cyan pill with chevron dropdown
+        if (isActive) {
+          return `
+            <div class="flex items-center gap-1.5 bg-accentCyan text-accentCyan-text px-3.5 py-1 rounded-full text-xs font-semibold cursor-pointer shadow">
+              <span>${escapeHtml(sheet.name)}</span>
+              <button onclick="event.stopPropagation(); openTabMenu(event, ${idx})" class="p-0.5 hover:bg-black/10 rounded">
+                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </button>
+            </div>
+          `;
+        } else {
+          return `
+            <button onclick="switchSheetTab(${idx})" class="px-3 py-1 rounded-full text-xs font-medium text-[#c4c7c5] hover:bg-sheetDark-700 hover:text-white transition-colors">
+              ${escapeHtml(sheet.name)}
+            </button>
+          `;
+        }
+      }).join('');
+    }
+
+    function switchSheetTab(idx) {
+      activeSheetIndex = idx;
+      selectedCell = { r: 1, c: 1 };
+      renderSheetTabs();
+      renderEditorGrid();
+      updateFormulaBarForSelectedCell();
+    }
+
+    function addNewSheetTab() {
+      const sheetNumber = activeFile.sheets.length + 1;
+      const newSheet = {
+        id: 'sheet_' + Date.now(),
+        name: `Sheet${sheetNumber}`,
+        cells: {}
+      };
+      activeFile.sheets.push(newSheet);
+      saveToStorage();
+      switchSheetTab(activeFile.sheets.length - 1);
+    }
+
+    function openTabMenu(e, idx) {
+      const menu = document.getElementById('tabContextMenu');
+      const rect = e.currentTarget.getBoundingClientRect();
+      menu.style.bottom = `${window.innerHeight - rect.top + 8}px`;
+      menu.style.left = `${Math.min(window.innerWidth - 180, rect.left)}px`;
+      menu.classList.remove('hidden');
+
+      const closeTabMenu = (ev) => {
+        if (!menu.contains(ev.target)) {
+          menu.classList.add('hidden');
+          document.removeEventListener('click', closeTabMenu);
+        }
+      };
+      setTimeout(() => document.addEventListener('click', closeTabMenu), 10);
+    }
+
+    function renameActiveSheetTab() {
+      const sheet = getActiveSheet();
+      if (!sheet) return;
+      const newName = prompt('Enter sheet name:', sheet.name);
+      if (newName && newName.trim()) {
+        sheet.name = newName.trim();
+        saveToStorage();
+        renderSheetTabs();
+      }
+      document.getElementById('tabContextMenu').classList.add('hidden');
+    }
+
+    function deleteActiveSheetTab() {
+      if (activeFile.sheets.length <= 1) {
+        alert("A spreadsheet must contain at least one sheet.");
+        document.getElementById('tabContextMenu').classList.add('hidden');
+        return;
+      }
+      if (confirm(`Delete '${getActiveSheet().name}'?`)) {
+        activeFile.sheets.splice(activeSheetIndex, 1);
+        activeSheetIndex = Math.max(0, activeSheetIndex - 1);
+        saveToStorage();
+        renderSheetTabs();
+        renderEditorGrid();
+      }
+      document.getElementById('tabContextMenu').classList.add('hidden');
+    }
+
+    /* ----------------------------------------------------
+       Export / Import Utility
+    ----------------------------------------------------- */
+    function exportCSV() {
+      const sheet = getActiveSheet();
+      if (!sheet) return;
+
+      let csv = '';
+      for (let r = 1; r <= ROWS_COUNT; r++) {
+        const rowVals = [];
+        let hasContent = false;
+        for (let c = 1; c <= COLS_COUNT; c++) {
+          const key = getCellKey(r, c);
+          const evaluated = evaluateCell(key, sheet);
+          if (evaluated !== '') hasContent = true;
+          // Escape quotes
+          rowVals.push(`"${evaluated.toString().replace(/"/g, '""')}"`);
+        }
+        if (hasContent || r <= 10) {
+          csv += rowVals.join(',') + '\r\n';
+        }
+      }
+
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `${activeFile.title || 'spreadsheet'}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    /* ----------------------------------------------------
+       Keyboard Nav & UI Controls
+    ----------------------------------------------------- */
+    window.addEventListener('keydown', (e) => {
+      // Ignore if modal is open or typing inside text input
+      if (document.getElementById('renameModal').classList.contains('flex') ||
+          document.getElementById('deleteModal').classList.contains('flex')) {
+        return;
+      }
+
+      if (e.target.tagName === 'INPUT' && e.target.id !== 'inlineInput') {
+        return;
+      }
+
+      if (document.getElementById('editorView').classList.contains('hidden')) {
+        return;
+      }
+
+      // Undo / Redo shortcuts
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) redo(); else undo();
+        return;
+      }
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        redo();
+        return;
+      }
+
+      // Arrows Navigation
+      if (!isEditingCell) {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          selectCell(Math.min(ROWS_COUNT, selectedCell.r + 1), selectedCell.c);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          selectCell(Math.max(1, selectedCell.r - 1), selectedCell.c);
+        } else if (e.key === 'ArrowRight' || e.key === 'Tab') {
+          e.preventDefault();
+          selectCell(selectedCell.r, Math.min(COLS_COUNT, selectedCell.c + 1));
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          selectCell(selectedCell.r, Math.max(1, selectedCell.c - 1));
+        } else if (e.key === 'Delete' || e.key === 'Backspace') {
+          const sheet = getActiveSheet();
+          const key = getCellKey(selectedCell.r, selectedCell.c);
+          if (sheet.cells[key]) {
+            pushUndoState();
+            delete sheet.cells[key];
+            saveToStorage();
+            renderEditorGrid();
+            updateFormulaBarForSelectedCell();
           }
+        } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
+          // Direct typing triggers cell edit
+          editCellInline(selectedCell.r, selectedCell.c);
         }
-      });
-      return count > 0 ? (sum / count) : 0;
-    }
-
-    function refreshGridValues() {
-      const file = files.find(f => f.id === activeFileId);
-      const data = (file && file.sheets && file.sheets[file.activeSheet]) || {};
-
-      COLS.forEach(col => {
-        for (let r = 1; r <= ROWS_COUNT; r++) {
-          const cellId = `${col}${r}`;
-          const td = document.getElementById(`cell-${cellId}`);
-          if (!td) continue;
-
-          if (data[cellId]) {
-            const calculated = evaluateFormula(data[cellId].raw, data);
-            data[cellId].val = calculated;
-            td.innerText = calculated;
-          } else {
-            td.innerText = '';
-          }
-        }
-      });
-    }
-
-    // --- Undo & Redo ---
-    function triggerUndo() {
-      if (undoStack.length === 0) return;
-      const action = undoStack.pop();
-      redoStack.push(action);
-
-      const file = files.find(f => f.id === activeFileId);
-      if (file && file.activeSheet !== action.sheet) {
-        switchSheet(action.sheet);
       }
+    });
 
-      selectCell(action.cellId);
-      document.getElementById('formula-input').value = action.oldVal;
-      saveCurrentCellValue(action.oldVal, false);
+    function toggleEditorMenu() {
+      const drop = document.getElementById('editorDropdown');
+      drop.classList.toggle('hidden');
     }
 
-    function triggerRedo() {
-      if (redoStack.length === 0) return;
-      const action = redoStack.pop();
-      undoStack.push(action);
+    function toggleFormatToolbar() {
+      const tb = document.getElementById('formatToolbar');
+      tb.classList.toggle('hidden');
+    }
 
-      const file = files.find(f => f.id === activeFileId);
-      if (file && file.activeSheet !== action.sheet) {
-        switchSheet(action.sheet);
+    function openInsertModal() {
+      const choice = prompt("Insert element:\nType 'row' to insert row below\nType 'col' to insert column right");
+      if (choice && choice.toLowerCase().includes('row')) {
+        alert("Inserted new row reference!");
       }
-
-      selectCell(action.cellId);
-      document.getElementById('formula-input').value = action.newVal;
-      saveCurrentCellValue(action.newVal, false);
     }
 
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.innerText = text;
-      return div.innerHTML;
+    function toggleSideMenu() {
+      alert("Google Sheets Web - All documents are stored and synced locally in your browser storage.");
     }
 
-    window.addEventListener('DOMContentLoaded', init);
+    function formatDate(ms) {
+      const date = new Date(ms);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    /* Init on page load */
+    window.addEventListener('DOMContentLoaded', () => {
+      initSeedData();
+      renderDashboard();
+    });
   </script>
 </body>
 </html>

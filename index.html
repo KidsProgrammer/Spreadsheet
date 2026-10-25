@@ -32,7 +32,7 @@
               dark: '#004d61',
               text: '#003640',
             },
-            sheetsGreen: '#0f9d58'
+            sheetsGreen: '#0fa958' // Google Sheets Green
           }
         }
       }
@@ -96,17 +96,17 @@
   <!-- VIEW 1: DASHBOARD / FILES VIEW             -->
   <!-- ========================================== -->
   <div id="dashboardView" class="h-full w-full flex flex-col">
-    <!-- Top Search Header -->
+    <!-- Top Search Header (No 'R' logo) -->
     <header class="p-3 sm:px-6 sm:py-4 flex items-center justify-between gap-3 border-b border-sheetDark-800">
       <div class="flex items-center gap-3 flex-1 max-w-3xl">
-        <button onclick="toggleSideMenu()" class="p-2.5 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]">
+        <button onclick="toggleSideMenu()" class="p-2.5 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Main menu">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
-        <!-- Search bar (styled exactly like image 1 & 2) -->
+        <!-- Search bar -->
         <div class="flex-1 flex items-center bg-sheetDark-800 rounded-full px-4 py-2 text-sm border border-transparent focus-within:border-accentCyan focus-within:bg-[#1f2124] transition-all">
           <svg class="w-5 h-5 text-[#8e918f] mr-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
           <input type="text" id="searchInput" placeholder="Search spreadsheets" oninput="renderDashboard()" class="bg-transparent border-none outline-none w-full text-[#e3e3e3] placeholder-[#8e918f] text-sm">
-          <button title="Folders" class="p-1 rounded-full text-[#c4c7c5] hover:bg-sheetDark-700 ml-1">
+          <button title="Open file picker" class="p-1 rounded-full text-[#c4c7c5] hover:bg-sheetDark-700 ml-1">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/></svg>
           </button>
         </div>
@@ -141,7 +141,7 @@
       <!-- Injected by JavaScript -->
     </main>
 
-    <!-- Floating Action Button (FAB) (Exact design as Screenshot 1 & 2) -->
+    <!-- Floating Action Button (FAB) -->
     <button onclick="createNewSpreadsheet()" class="fixed bottom-6 right-6 sm:bottom-8 sm:right-8 w-14 h-14 rounded-2xl bg-[#004d61] hover:bg-[#005f78] text-accentCyan shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 z-30" title="Create new spreadsheet">
       <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
     </button>
@@ -152,7 +152,7 @@
   <!-- VIEW 2: SPREADSHEET EDITOR VIEW            -->
   <!-- ========================================== -->
   <div id="editorView" class="h-full w-full flex flex-col hidden bg-sheetDark-900">
-    <!-- Editor Header Toolbar (as in image 3 & 4) -->
+    <!-- Editor Header Toolbar -->
     <header class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-2 flex items-center justify-between gap-2">
       <div class="flex items-center gap-2 sm:gap-4 flex-1 min-w-0">
         <!-- Back to Dashboard button -->
@@ -181,7 +181,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 00-5 5v2m15-7l-4-4m4 4l-4 4"/></svg>
         </button>
 
-        <!-- Quick Format Button (A icon as shown in image 3) -->
+        <!-- Quick Format Button -->
         <button onclick="toggleFormatToolbar()" class="p-2 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Format text/cell">
           <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
             <path d="M5 18v-2h4.5l3.5-9h2l3.5 9H23v2H5zm7.2-4.5h3.6L14 8.7h-.2l-1.6 4.8zM2 4h10v2H2V4z"/>
@@ -193,7 +193,7 @@
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
         </button>
 
-        <!-- Share button -->
+        <!-- Export CSV button -->
         <button onclick="exportCSV()" class="hidden sm:flex items-center gap-1.5 bg-sheetDark-700 hover:bg-sheetDark-600 px-3 py-1.5 rounded-full text-xs font-medium text-white transition-colors" title="Export CSV">
           <svg class="w-4 h-4 text-accentCyan" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
           Export
@@ -225,7 +225,7 @@
       </div>
     </header>
 
-    <!-- Formula Bar (as seen in Image 3) -->
+    <!-- Formula Bar -->
     <div class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-1.5 flex items-center gap-3 text-sm">
       <div id="activeCellAddress" class="text-xs font-mono font-bold text-accentCyan w-10 text-center bg-sheetDark-900 py-1 rounded border border-sheetDark-600">
         A1
@@ -242,16 +242,14 @@
       </button>
     </div>
 
-    <!-- Desktop Formatting Toolbar (Shown on Desktop & togglable on mobile) -->
+    <!-- Desktop Formatting Toolbar -->
     <div id="formatToolbar" class="bg-sheetDark-800 border-b border-sheetDark-700 px-3 py-1.5 flex items-center gap-1 sm:gap-2 overflow-x-auto text-xs text-[#c4c7c5]">
-      <!-- Text styling -->
       <button onclick="formatCell('bold')" id="btnBold" class="p-1.5 rounded hover:bg-sheetDark-700 font-bold" title="Bold (Ctrl+B)">B</button>
       <button onclick="formatCell('italic')" id="btnItalic" class="p-1.5 rounded hover:bg-sheetDark-700 italic" title="Italic (Ctrl+I)">I</button>
       <button onclick="formatCell('strikethrough')" id="btnStrike" class="p-1.5 rounded hover:bg-sheetDark-700 line-through" title="Strikethrough">S</button>
       
       <div class="h-4 w-[1px] bg-sheetDark-600 mx-1"></div>
 
-      <!-- Alignments -->
       <button onclick="formatCell('align', 'left')" class="p-1.5 rounded hover:bg-sheetDark-700" title="Align Left">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h10M4 18h14"/></svg>
       </button>
@@ -287,7 +285,6 @@
 
       <div class="flex-1"></div>
 
-      <!-- Clear Cell format button -->
       <button onclick="clearCellFormat()" class="px-2 py-1 rounded hover:bg-sheetDark-700 text-[#8e918f] hover:text-white" title="Clear Formatting">
         Reset format
       </button>
@@ -296,30 +293,26 @@
     <!-- Spreadsheet Main Grid Area -->
     <div id="gridScrollContainer" class="flex-1 overflow-auto bg-sheetDark-900 relative">
       <table id="sheetTable" class="grid-table w-full text-xs text-[#e3e3e3]">
-        <!-- Table generated in JS -->
+        <!-- Injected by JavaScript -->
       </table>
     </div>
 
-    <!-- Bottom Sheet Tabs Bar (as seen in Image 4) -->
+    <!-- Bottom Sheet Tabs Bar -->
     <footer class="bg-sheetDark-800 border-t border-sheetDark-700 px-3 py-1.5 flex items-center justify-between z-20">
       <div class="flex items-center gap-2 overflow-x-auto max-w-[80vw]">
-        <!-- Sheet Menu / List -->
         <button onclick="showSheetsListModal()" class="p-1.5 rounded hover:bg-sheetDark-700 text-[#c4c7c5]" title="All sheets">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
         </button>
 
-        <!-- Dynamic Sheet Tabs (Pill style matching Image 4) -->
         <div id="sheetTabsContainer" class="flex items-center gap-1">
           <!-- Injected by JavaScript -->
         </div>
 
-        <!-- Add Sheet Button (+) -->
         <button onclick="addNewSheetTab()" class="p-1.5 rounded-full hover:bg-sheetDark-700 text-[#c4c7c5]" title="Add sheet">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
         </button>
       </div>
 
-      <!-- Quick Summary Aggregates (Desktop feature) -->
       <div id="gridQuickStats" class="hidden md:flex items-center gap-4 text-xs font-mono text-[#9aa0a6] px-3">
         <span>SUM: <b id="statSum" class="text-white">0</b></span>
         <span>COUNT: <b id="statCount" class="text-white">0</b></span>
@@ -332,7 +325,7 @@
   <!-- MODALS & DIALOGS                           -->
   <!-- ========================================== -->
 
-  <!-- Generic Rename Modal (Available from Dashboard & Editor) -->
+  <!-- Generic Rename Modal -->
   <div id="renameModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
     <div class="bg-sheetDark-800 border border-sheetDark-700 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
       <h3 class="text-lg font-medium text-white mb-2">Rename spreadsheet</h3>
@@ -360,7 +353,7 @@
     </div>
   </div>
 
-  <!-- Tab Context Menu (Rename / Delete tab) -->
+  <!-- Tab Context Menu -->
   <div id="tabContextMenu" class="fixed bg-sheetDark-800 border border-sheetDark-700 rounded-xl shadow-2xl py-2 hidden z-50 w-44">
     <button onclick="renameActiveSheetTab()" class="w-full text-left px-4 py-2 text-sm text-[#e3e3e3] hover:bg-sheetDark-700 flex items-center gap-2">
       <svg class="w-4 h-4 text-[#8e918f]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -380,24 +373,35 @@
     /* ----------------------------------------------------
        State & Storage Architecture
     ----------------------------------------------------- */
-    const STORAGE_KEY = 'google_sheets_clone_storage_v1';
+    const STORAGE_KEY = 'google_sheets_clone_storage_v3';
     const ROWS_COUNT = 50;
-    const COLS_COUNT = 20; // A to T
+    const COLS_COUNT = 20;
 
     let files = [];
     let activeFile = null;
     let activeSheetIndex = 0;
-    let selectedCell = { r: 1, c: 1 }; // 1-based (A1)
+    let selectedCell = { r: 1, c: 1 };
     let isEditingCell = false;
-    let viewMode = 'grid'; // 'grid' | 'list'
-    let sortDirection = 'desc'; // 'desc' | 'asc'
+    let viewMode = 'grid';
+    let sortDirection = 'desc';
     let targetFileIdForAction = null;
 
-    // Undo / Redo stacks
     let undoStack = [];
     let redoStack = [];
 
-    /* Initial sample seed data (so user sees realistic Google Sheets behavior right away) */
+    /* Helper: Returns the exact Google Sheets icon SVG from your image */
+    function getSheetsIconSvg(sizeClass = "w-6 h-6", rx = "10") {
+      return `
+        <svg viewBox="0 0 48 48" class="${sizeClass} shrink-0" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect width="48" height="48" rx="${rx}" fill="#0fa958"/>
+          <!-- Precise cross grid lines matching Google Sheets screenshot -->
+          <line x1="12" y1="18.5" x2="38" y2="18.5" stroke="white" stroke-width="5" stroke-linecap="round"/>
+          <line x1="18.5" y1="12" x2="18.5" y2="38" stroke="white" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      `;
+    }
+
+    /* Start empty */
     function initSeedData() {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -408,39 +412,7 @@
           console.error("Failed to parse storage", e);
         }
       }
-
-      // Default sample file inspired by budget/spreadsheet usage
-      files = [
-        {
-          id: 'file_' + Date.now(),
-          title: 'Monthly Budget Plan',
-          createdAt: Date.now() - 3600000,
-          updatedAt: Date.now() - 1200000,
-          sheets: [
-            {
-              id: 'sheet_1',
-              name: 'Sheet1',
-              cells: {
-                'A1': { raw: 'Category', style: { bold: true, bgColor: '#1f2b30' } },
-                'B1': { raw: 'Planned ($)', style: { bold: true, bgColor: '#1f2b30' } },
-                'C1': { raw: 'Actual ($)', style: { bold: true, bgColor: '#1f2b30' } },
-                'A2': { raw: 'Housing' },
-                'B2': { raw: '1200' },
-                'C2': { raw: '1200' },
-                'A3': { raw: 'Groceries' },
-                'B3': { raw: '450' },
-                'C3': { raw: '480' },
-                'A4': { raw: 'Utilities' },
-                'B4': { raw: '180' },
-                'C4': { raw: '165' },
-                'A5': { raw: 'Total' },
-                'B5': { raw: '=SUM(B2:B4)', style: { bold: true } },
-                'C5': { raw: '=SUM(C2:C4)', style: { bold: true } }
-              }
-            }
-          ]
-        }
-      ];
+      files = [];
       saveToStorage();
     }
 
@@ -462,33 +434,26 @@
       let filtered = files.filter(f => f.title.toLowerCase().includes(searchQuery));
       filtered.sort((a, b) => sortDirection === 'desc' ? b.updatedAt - a.updatedAt : a.updatedAt - b.updatedAt);
 
-      // If empty: Render the EXACT empty illustration matching Image 1!
+      // If empty: Render the empty illustration
       if (filtered.length === 0) {
         container.innerHTML = `
           <div class="h-full flex flex-col items-center justify-center text-center p-6 mt-4">
-            <!-- Modern Google Sheets Character Illustration (from Screenshot 1) -->
             <div class="w-64 h-64 sm:w-72 sm:h-72 relative flex items-center justify-center mb-6">
               <svg viewBox="0 0 300 300" class="w-full h-full" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <!-- Background ambient circle -->
                 <circle cx="150" cy="150" r="110" fill="#1b1d20" />
                 <path d="M120 70 C140 50, 160 50, 180 70" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
-                <!-- Blue doc card behind -->
                 <rect x="70" y="85" width="48" height="60" rx="6" fill="#1e3a47" stroke="#78d9ec" stroke-width="1.5" />
                 <line x1="78" y1="98" x2="98" y2="98" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
                 <line x1="78" y1="108" x2="108" y2="108" stroke="#78d9ec" stroke-width="2" stroke-linecap="round"/>
-                <!-- Green spreadsheet card behind -->
-                <rect x="180" y="95" width="48" height="60" rx="6" fill="#123d24" stroke="#0f9d58" stroke-width="1.5" />
-                <rect x="187" y="104" width="34" height="20" rx="2" fill="#0f9d58" fill-opacity="0.2" stroke="#0f9d58" stroke-width="1" />
-                <line x1="204" y1="104" x2="204" y2="124" stroke="#0f9d58" stroke-width="1"/>
-                <line x1="187" y1="114" x2="221" y2="114" stroke="#0f9d58" stroke-width="1"/>
-                <!-- Person avatar holding white sheet -->
+                <rect x="180" y="95" width="48" height="60" rx="6" fill="#123d24" stroke="#0fa958" stroke-width="1.5" />
+                <rect x="187" y="104" width="34" height="20" rx="2" fill="#0fa958" fill-opacity="0.2" stroke="#0fa958" stroke-width="1" />
+                <line x1="204" y1="104" x2="204" y2="124" stroke="#0fa958" stroke-width="1"/>
+                <line x1="187" y1="114" x2="221" y2="114" stroke="#0fa958" stroke-width="1"/>
                 <path d="M135 110 C135 90, 190 90, 185 130 C185 155, 175 160, 150 160 C135 160, 135 135, 135 110 Z" fill="#9e4c34"/>
                 <circle cx="150" cy="120" r="18" fill="#e09f7a"/>
-                <!-- White sheet in hand with gold checkmark -->
                 <rect x="122" y="130" width="56" height="70" rx="8" fill="#ffffff" filter="drop-shadow(0px 8px 12px rgba(0,0,0,0.5))"/>
                 <circle cx="150" cy="162" r="14" fill="#fde293"/>
                 <path d="M144 162 L148 166 L156 158" stroke="#b06000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
-                <!-- Arms holding sheet -->
                 <path d="M100 170 Q122 140 135 145" stroke="#e09f7a" stroke-width="9" stroke-linecap="round"/>
                 <path d="M200 170 Q178 140 165 145" stroke="#e09f7a" stroke-width="9" stroke-linecap="round"/>
               </svg>
@@ -504,46 +469,41 @@
         return;
       }
 
-      // Render Files Grid or List matching Image 2
+      // Render Grid View matching the uploaded image card
       if (viewMode === 'grid') {
         container.innerHTML = `
           <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
             ${filtered.map(f => `
               <div onclick="openSpreadsheet('${f.id}')" class="group bg-sheetDark-800 hover:bg-sheetDark-700 border border-sheetDark-700 hover:border-sheetDark-600 rounded-2xl p-3 flex flex-col justify-between cursor-pointer transition-all hover:shadow-xl relative aspect-[4/4]">
-                <!-- Top Header: Green Sheets Logo + Title + 3-dot Menu -->
+                <!-- Top Card Header: Small Logo + Title in English + 3 Dots -->
                 <div class="flex items-start justify-between gap-1">
-                  <div class="flex items-start gap-2.5 min-w-0">
-                    <!-- Google Sheets Green Icon -->
-                    <div class="w-6 h-6 rounded bg-sheetsGreen/20 text-sheetsGreen flex items-center justify-center shrink-0 mt-0.5">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H5v-2h7v2zm0-4H5v-2h7v2zm0-4H5V7h7v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z"/>
-                      </svg>
-                    </div>
+                  <div class="flex items-center gap-2.5 min-w-0">
+                    <!-- New Exact Green Sheets Icon -->
+                    ${getSheetsIconSvg("w-6 h-6", "10")}
                     <span class="text-sm font-medium text-[#e3e3e3] line-clamp-2 leading-snug group-hover:text-white" title="${escapeHtml(f.title)}">
                       ${escapeHtml(f.title)}
                     </span>
                   </div>
                   
-                  <!-- 3 dots options menu -->
                   <button onclick="event.stopPropagation(); openFileMenu(event, '${f.id}')" class="p-1.5 -mr-1 rounded-full text-[#8e918f] hover:text-white hover:bg-sheetDark-600">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z"/></svg>
                   </button>
                 </div>
 
-                <!-- Preview Box Graphic (matching screenshot 2) -->
+                <!-- Preview Thumbnail: Large exact green logo + circular badge -->
                 <div class="w-full flex-1 my-3 bg-[#131517] rounded-xl flex items-center justify-center border border-sheetDark-600/40 relative overflow-hidden">
-                  <div class="w-12 h-12 rounded-xl bg-[#0f9d58]/20 border border-[#0f9d58]/40 flex items-center justify-center text-sheetsGreen">
-                    <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14zM7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z"/>
+                  <!-- Large Centered Logo -->
+                  ${getSheetsIconSvg("w-14 h-14", "12")}
+
+                  <!-- Offline Available Check Badge (from image) -->
+                  <div class="absolute top-2.5 right-2.5 w-6 h-6 rounded-full bg-[#53575e] flex items-center justify-center shadow-md">
+                    <svg class="w-3.5 h-3.5 text-[#131517]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                  </div>
-                  <!-- Offline / Sync icon indicator on preview -->
-                  <div class="absolute bottom-2 right-2 text-[#8e918f]">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                   </div>
                 </div>
 
-                <!-- Date Info -->
+                <!-- Date Info in English -->
                 <div class="text-[11px] text-[#8e918f]">
                   Opened ${formatDate(f.updatedAt)}
                 </div>
@@ -558,9 +518,7 @@
             ${filtered.map(f => `
               <div onclick="openSpreadsheet('${f.id}')" class="flex items-center justify-between p-3.5 hover:bg-sheetDark-700/60 cursor-pointer transition-colors">
                 <div class="flex items-center gap-3 min-w-0">
-                  <div class="w-8 h-8 rounded-lg bg-sheetsGreen/20 text-sheetsGreen flex items-center justify-center shrink-0">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14H5v-2h7v2zm0-4H5v-2h7v2zm0-4H5V7h7v2zm7 8h-5v-2h5v2zm0-4h-5v-2h5v2zm0-4h-5V7h5v2z"/></svg>
-                  </div>
+                  ${getSheetsIconSvg("w-7 h-7", "8")}
                   <div class="flex flex-col min-w-0">
                     <span class="text-sm font-medium text-white truncate">${escapeHtml(f.title)}</span>
                     <span class="text-xs text-[#8e918f]">Opened ${formatDate(f.updatedAt)}</span>
@@ -642,7 +600,7 @@
       renderDashboard();
     }
 
-    // Modal Renaming Logic
+    // Rename Logic
     function openRenameModal(fileId) {
       targetFileIdForAction = fileId;
       const file = files.find(f => f.id === fileId);
@@ -689,7 +647,7 @@
       saveToStorage();
     }
 
-    // Modal Deleting Logic
+    // Delete Logic
     function openDeleteModal(fileId) {
       targetFileIdForAction = fileId;
       const file = files.find(f => f.id === fileId);
@@ -730,7 +688,6 @@
     // Context Popups
     function openFileMenu(e, fileId) {
       const rect = e.currentTarget.getBoundingClientRect();
-      // Remove any existing dynamic menu
       const existing = document.getElementById('dynamicFileMenu');
       if (existing) existing.remove();
 
@@ -817,22 +774,17 @@
       if (!sheet) return;
 
       let html = '<thead><tr>';
-      // Corner header cell
       html += '<th class="header-cell w-10 min-w-10 sticky top-0 left-0 z-30 text-center bg-[#181a1d]">#</th>';
       
-      // Column headers: A, B, C...
       for (let c = 1; c <= COLS_COUNT; c++) {
         html += `<th class="header-cell w-28 min-w-28 py-1.5 text-center sticky top-0 z-20">${colNumberToName(c)}</th>`;
       }
       html += '</tr></thead><tbody>';
 
-      // Rows
       for (let r = 1; r <= ROWS_COUNT; r++) {
         html += '<tr>';
-        // Row Number header
         html += `<td class="header-cell sticky left-0 z-10 text-center font-mono py-1">${r}</td>`;
         
-        // Cells
         for (let c = 1; c <= COLS_COUNT; c++) {
           const key = getCellKey(r, c);
           const cell = sheet.cells[key] || {};
@@ -868,9 +820,6 @@
       return css;
     }
 
-    /* ----------------------------------------------------
-       Formula Parser (=SUM, =AVERAGE, =COUNT, basic Math)
-    ----------------------------------------------------- */
     function evaluateCell(key, sheet, visited = new Set()) {
       const cell = sheet.cells[key];
       if (!cell || cell.raw === undefined || cell.raw === null) return '';
@@ -880,21 +829,18 @@
         return val;
       }
 
-      // Circular dependency guard
       if (visited.has(key)) return '#REF!';
       visited.add(key);
 
       try {
         const expression = val.slice(1).trim().toUpperCase();
 
-        // Handle Formulas: SUM(A1:A5)
         if (expression.startsWith('SUM(') && expression.endsWith(')')) {
           const range = expression.slice(4, -1);
           const values = getRangeValues(range, sheet, visited);
           return values.reduce((acc, curr) => acc + (parseFloat(curr) || 0), 0);
         }
 
-        // AVERAGE(A1:A5)
         if (expression.startsWith('AVERAGE(') && expression.endsWith(')')) {
           const range = expression.slice(8, -1);
           const values = getRangeValues(range, sheet, visited).map(v => parseFloat(v)).filter(v => !isNaN(v));
@@ -902,21 +848,18 @@
           return (values.reduce((a, b) => a + b, 0) / values.length).toFixed(2).replace(/\.00$/, '');
         }
 
-        // COUNT(A1:A5)
         if (expression.startsWith('COUNT(') && expression.endsWith(')')) {
           const range = expression.slice(6, -1);
           const values = getRangeValues(range, sheet, visited).map(v => parseFloat(v)).filter(v => !isNaN(v));
           return values.length;
         }
 
-        // Replace Cell References e.g. A1 + B2
         const sanitized = expression.replace(/([A-Z]+[0-9]+)/g, (match) => {
           const resolved = evaluateCell(match, sheet, new Set(visited));
           const num = parseFloat(resolved);
           return isNaN(num) ? 0 : num;
         });
 
-        // Basic arithmetic calculation safely
         if (/^[\d\s+\-*/().]+$/.test(sanitized)) {
           const result = Function(`'use strict'; return (${sanitized})`)();
           return typeof result === 'number' ? (Math.round(result * 100) / 100) : result;
@@ -931,7 +874,6 @@
     function getRangeValues(rangeStr, sheet, visited) {
       const parts = rangeStr.split(':');
       if (parts.length !== 2) {
-        // Single cell
         return [evaluateCell(rangeStr.trim(), sheet, visited)];
       }
 
@@ -1030,7 +972,6 @@
       if (!sheet.cells[key]) sheet.cells[key] = {};
       sheet.cells[key].raw = val;
 
-      // Realtime mirror in table cell
       const td = document.getElementById(`cell_${selectedCell.r}_${selectedCell.c}`);
       if (td && !isEditingCell) {
         td.innerText = val.startsWith('=') ? evaluateCell(key, sheet) : val;
@@ -1053,7 +994,6 @@
 
       if (!sheet.cells[key]) sheet.cells[key] = {};
 
-      // Push to Undo
       pushUndoState();
 
       sheet.cells[key].raw = val;
@@ -1130,7 +1070,7 @@
       if (!activeFile) return;
       undoStack.push(JSON.stringify(activeFile));
       if (undoStack.length > 30) undoStack.shift();
-      redoStack = []; // reset redo on action
+      redoStack = [];
     }
 
     function undo() {
@@ -1154,7 +1094,7 @@
     }
 
     /* ----------------------------------------------------
-       Sheets Management (Tabs at bottom - Image 4)
+       Sheets Tabs Management
     ----------------------------------------------------- */
     function renderSheetTabs() {
       const container = document.getElementById('sheetTabsContainer');
@@ -1162,7 +1102,6 @@
 
       container.innerHTML = activeFile.sheets.map((sheet, idx) => {
         const isActive = idx === activeSheetIndex;
-        // Image 4 style active tab: cyan pill with chevron dropdown
         if (isActive) {
           return `
             <div class="flex items-center gap-1.5 bg-accentCyan text-accentCyan-text px-3.5 py-1 rounded-full text-xs font-semibold cursor-pointer shadow">
@@ -1247,7 +1186,7 @@
     }
 
     /* ----------------------------------------------------
-       Export / Import Utility
+       Export Utility
     ----------------------------------------------------- */
     function exportCSV() {
       const sheet = getActiveSheet();
@@ -1261,7 +1200,6 @@
           const key = getCellKey(r, c);
           const evaluated = evaluateCell(key, sheet);
           if (evaluated !== '') hasContent = true;
-          // Escape quotes
           rowVals.push(`"${evaluated.toString().replace(/"/g, '""')}"`);
         }
         if (hasContent || r <= 10) {
@@ -1273,7 +1211,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', `${activeFile.title || 'spreadsheet'}.csv`);
+      link.setAttribute('download', `${activeFile.title || 'Untitled spreadsheet'}.csv`);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1283,7 +1221,6 @@
        Keyboard Nav & UI Controls
     ----------------------------------------------------- */
     window.addEventListener('keydown', (e) => {
-      // Ignore if modal is open or typing inside text input
       if (document.getElementById('renameModal').classList.contains('flex') ||
           document.getElementById('deleteModal').classList.contains('flex')) {
         return;
@@ -1297,7 +1234,6 @@
         return;
       }
 
-      // Undo / Redo shortcuts
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         if (e.shiftKey) redo(); else undo();
@@ -1309,7 +1245,6 @@
         return;
       }
 
-      // Arrows Navigation
       if (!isEditingCell) {
         if (e.key === 'ArrowDown') {
           e.preventDefault();
@@ -1334,7 +1269,6 @@
             updateFormulaBarForSelectedCell();
           }
         } else if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
-          // Direct typing triggers cell edit
           editCellInline(selectedCell.r, selectedCell.c);
         }
       }
@@ -1358,7 +1292,7 @@
     }
 
     function toggleSideMenu() {
-      alert("Google Sheets Web - All documents are stored and synced locally in your browser storage.");
+      alert("Google Sheets - All documents are stored and synced locally in your browser storage.");
     }
 
     function formatDate(ms) {
